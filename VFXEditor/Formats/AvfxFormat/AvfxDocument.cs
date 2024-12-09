@@ -9,6 +9,7 @@ using VfxEditor.Formats.AvfxFormat.Texture;
 using VfxEditor.Select;
 using VfxEditor.Spawn;
 using VfxEditor.Utils;
+using System.Collections.Generic;
 
 namespace VfxEditor.AvfxFormat {
     public class AvfxDocument : FileManagerDocument<AvfxFile, WorkspaceMetaRenamed> {
@@ -109,9 +110,7 @@ namespace VfxEditor.AvfxFormat {
         }
 
         protected override string GetWarningText() {
-            var invalidTimeline = File.TimelineView.Group.Items.Where( timeline => timeline.Items.Any( item => !item.HasValue ) ).FirstOrDefault();
-            if( invalidTimeline == null ) return "";
-            return $"Timeline [{invalidTimeline.GetText()}] is Missing a Value";
+            return AvfxWarning.GetWarningText(File);
         }
 
         protected override void DisplayFileControls() {
