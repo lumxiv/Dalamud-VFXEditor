@@ -25,6 +25,8 @@ namespace VfxEditor.PapFormat {
         private bool Exclude = false;
         private ExcludedBonesConfiguration SelectedExcludeList;
 
+        public int AnimationCount = 0;
+
         public PapGltfImportModal( PapMotion motion, int index, string importPath ) : base( "Animation Import", true ) {
             Motion = motion;
             HavokIndex = index;
@@ -48,6 +50,7 @@ namespace VfxEditor.PapFormat {
 
             foreach( var animation in model.LogicalAnimations ) {
                 AnimationNames.Add( animation.Name );
+                AnimationCount++;
             }
         }
 

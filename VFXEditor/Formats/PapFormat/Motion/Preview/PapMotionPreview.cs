@@ -28,7 +28,14 @@ namespace VfxEditor.Formats.PapFormat.Motion.Preview {
                     Plugin.AddModal( new PapReplaceModal( Motion, idx, res ) );
                 }
                 else {
-                    Plugin.AddModal( new PapGltfImportModal( Motion, idx, res ) );
+                    var modal = new PapGltfImportModal( Motion, idx, res );
+                    if( modal.AnimationCount <= 0 )
+                    {
+                        Dalamud.ErrorNotification( "No animations found in this file." );
+                    } else
+                    {
+                        Plugin.AddModal( modal );
+                    }
                 }
             } );
         }
