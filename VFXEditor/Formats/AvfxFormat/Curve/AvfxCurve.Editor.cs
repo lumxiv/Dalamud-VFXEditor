@@ -1,9 +1,11 @@
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
 using ImGuiNET;
 using ImPlotNET;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using VfxEditor.Data.Command.ListCommands;
@@ -19,6 +21,12 @@ namespace VfxEditor.AvfxFormat {
 
         private bool DrawOnce = false;
         public bool IsColor => Type == CurveType.Color;
+
+        public int EditorMoveX = 0;
+        public float EditorMoveY = 0;
+        public float EditorScaleFactor = 1f;
+        public bool EditorScaleAxisX = true;
+        public bool EditorScaleAxisY = true;
 
         private bool PrevClickState = false;
         private DateTime PrevClickTime = DateTime.Now;
@@ -153,6 +161,9 @@ namespace VfxEditor.AvfxFormat {
 
             ImGui.SetCursorPosY( ImGui.GetCursorPosY() + 5 );
             SelectedPrimary?.Draw();
+
+            EditorMove();
+            EditorScale();
         }
 
         private void DrawControls( out bool fit ) {
@@ -176,6 +187,12 @@ namespace VfxEditor.AvfxFormat {
 
                 ImGui.SameLine();
                 if( UiUtils.DisabledButton( "Copy", Keys.Count > 0, true ) ) Copy();
+
+                ImGui.SameLine();
+                if( UiUtils.DisabledButton( "Move", Selected.Count > 0, true ) ) ImGui.OpenPopup( "EditorMoveAction" );
+
+                ImGui.SameLine();
+                if( UiUtils.DisabledButton( "Scale", Selected.Count > 0, true ) ) ImGui.OpenPopup( "EditorScaleAction" );
 
                 ImGui.SameLine();
                 if( UiUtils.DisabledButton( "Paste", CopiedKeys.Count > 0, true ) ) Paste();
@@ -211,6 +228,32 @@ namespace VfxEditor.AvfxFormat {
 
                 ImGui.EndTooltip();
             }
+        }
+
+        private void EditorMove()
+        {
+            using var popup = ImRaii.Popup( "EditorMoveAction" );
+            if( !popup ) return;
+
+            ImGui.InputInt( "Time", ref EditorMoveX );
+
+            ImGui.InputFloat( "Value", ref EditorMoveY );
+
+            if( ImGui.Button( "OK" ) ) Move( );
+        }
+
+        private void EditorScale()
+        {
+            using var popup = ImRaii.Popup( "EditorScaleAction" );
+            if( !popup ) return;
+
+            ImGui.InputFloat( "Factor", ref EditorScaleFactor );
+
+            ImGui.Checkbox( "Time", ref EditorScaleAxisX );
+            ImGui.SameLine();
+            ImGui.Checkbox( "Value", ref EditorScaleAxisY );
+
+            if( ImGui.Button( "OK" ) ) Scale( );
         }
 
         private void DrawWrongOrder() {
@@ -301,6 +344,20 @@ namespace VfxEditor.AvfxFormat {
 
         private void Replace() {
             CommandManager.Add( new ListSetCommand<AvfxCurveKey>( Keys, CopiedKeys.Select( x => new AvfxCurveKey( this, x ) ), Update ) );
+        }
+
+        private void Move( )
+        {
+            var commands = new List<ICommand>();
+            Selected.ForEach( x => x.Move( commands, EditorMoveX, EditorMoveY ) );
+            CommandManager.Add( new CompoundCommand( commands, Update ) );
+        }
+
+        private void Scale( )
+        {
+            var commands = new List<ICommand>();
+            Selected.ForEach( x => x.Scale( commands, EditorScaleAxisX ? EditorScaleFactor : 1, EditorScaleAxisY ? EditorScaleFactor : 1 ) );
+            CommandManager.Add( new CompoundCommand( commands, Update ) );
         }
 
         // ======== GRADIENT ==========

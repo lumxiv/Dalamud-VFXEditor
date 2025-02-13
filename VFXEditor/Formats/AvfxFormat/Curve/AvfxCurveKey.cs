@@ -87,9 +87,36 @@ namespace VfxEditor.AvfxFormat {
             StateBeforeEditing = (Time.Value, Data.Value);
         }
 
-        public void StopDragging( List<ICommand> commands ) {
+        public void StopDragging( List<ICommand> commands )
+        {
             commands.Add( new ParsedSimpleCommand<int>( Time, StateBeforeEditing.Item1, Time.Value ) );
             commands.Add( new ParsedSimpleCommand<Vector3>( Data, StateBeforeEditing.Item2, Data.Value ) );
+        }
+
+        public void Move( List<ICommand> commands, int valX, float valY )
+        {
+            var newTime = Time.Value + valX;
+            commands.Add( new ParsedSimpleCommand<int>( Time, Time.Value, newTime >= 0 ? newTime : 0 ) );
+            var movedVector = new Vector3
+            {
+                X = Data.Value.X,
+                Y = Data.Value.Y,
+                Z = Data.Value.Z + valY
+            };
+            commands.Add( new ParsedSimpleCommand<Vector3>( Data, Data.Value, movedVector ) );
+        }
+
+        public void Scale( List<ICommand> commands, float factorX, float factorY )
+        { 
+            var newTime = (int)Math.Round(Time.Value * factorX);
+            commands.Add( new ParsedSimpleCommand<int>( Time, Time.Value, newTime >= 0 ? newTime : 0 ) );
+            var scaledVector = new Vector3
+            {
+                X = Data.Value.X,
+                Y = Data.Value.Y,
+                Z = Data.Value.Z * factorY
+            };
+            commands.Add( new ParsedSimpleCommand<Vector3>( Data, Data.Value, scaledVector ) );
         }
 
         // ======= DRAWING =========
