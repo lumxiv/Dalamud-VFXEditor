@@ -1,11 +1,9 @@
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
 using ImGuiNET;
 using ImPlotNET;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using VfxEditor.Data.Command.ListCommands;
