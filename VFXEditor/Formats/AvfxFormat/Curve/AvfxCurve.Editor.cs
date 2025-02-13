@@ -162,8 +162,8 @@ namespace VfxEditor.AvfxFormat {
             ImGui.SetCursorPosY( ImGui.GetCursorPosY() + 5 );
             SelectedPrimary?.Draw();
 
-            EditorMove();
-            EditorScale();
+            MovePopup();
+            ScalePopup();
         }
 
         private void DrawControls( out bool fit ) {
@@ -189,10 +189,10 @@ namespace VfxEditor.AvfxFormat {
                 if( UiUtils.DisabledButton( "Copy", Keys.Count > 0, true ) ) Copy();
 
                 ImGui.SameLine();
-                if( UiUtils.DisabledButton( "Move", Selected.Count > 0, true ) ) ImGui.OpenPopup( "EditorMoveAction" );
+                if( UiUtils.DisabledButton( "Move", Selected.Count > 0, true ) ) ImGui.OpenPopup( "EditorMovePopup" );
 
                 ImGui.SameLine();
-                if( UiUtils.DisabledButton( "Scale", Selected.Count > 0, true ) ) ImGui.OpenPopup( "EditorScaleAction" );
+                if( UiUtils.DisabledButton( "Scale", Selected.Count > 0, true ) ) ImGui.OpenPopup( "EditorScalePopup" );
 
                 ImGui.SameLine();
                 if( UiUtils.DisabledButton( "Paste", CopiedKeys.Count > 0, true ) ) Paste();
@@ -230,9 +230,9 @@ namespace VfxEditor.AvfxFormat {
             }
         }
 
-        private void EditorMove()
+        private void MovePopup()
         {
-            using var popup = ImRaii.Popup( "EditorMoveAction" );
+            using var popup = ImRaii.Popup( "EditorMovePopup" );
             if( !popup ) return;
 
             ImGui.InputInt( "Time", ref EditorMoveX );
@@ -242,9 +242,9 @@ namespace VfxEditor.AvfxFormat {
             if( ImGui.Button( "OK" ) ) Move( );
         }
 
-        private void EditorScale()
+        private void ScalePopup()
         {
-            using var popup = ImRaii.Popup( "EditorScaleAction" );
+            using var popup = ImRaii.Popup( "EditorScalePopup" );
             if( !popup ) return;
 
             ImGui.InputFloat( "Factor", ref EditorScaleFactor );
