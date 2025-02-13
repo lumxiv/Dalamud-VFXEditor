@@ -142,7 +142,7 @@ namespace VfxEditor.AvfxFormat {
                             using( ImRaii.Disabled( Selected.Count == 0 ) )
                             {
                                 if( ImGui.Selectable( $"Move selected by [{EditorMoveX};{EditorMoveY}]" ) ) Move();
-                                if( ImGui.Selectable( $"Scale selected by {EditorScaleFactor} ({(EditorScaleAxisX ? "Y" : "N")};{( EditorScaleAxisY ? "Y" : "N" )})" ) ) Scale();
+                                if( ImGui.Selectable( $"Scale selected by {EditorScaleFactor} ({(EditorScaleAxisX ? "Y" : "N")};{( EditorScaleAxisY && !IsColor ? "Y" : "N" )})" ) ) Scale();
                             }
                         }
                     }
@@ -241,7 +241,10 @@ namespace VfxEditor.AvfxFormat {
 
             ImGui.InputInt( "Time", ref EditorMoveX );
 
-            ImGui.InputFloat( "Value", ref EditorMoveY );
+            if( !IsColor )
+            {
+                ImGui.InputFloat( "Value", ref EditorMoveY );
+            }
 
             if( ImGui.Button( "Apply" ) ) Move( );
         }
@@ -254,8 +257,11 @@ namespace VfxEditor.AvfxFormat {
             ImGui.InputFloat( "Factor", ref EditorScaleFactor );
 
             ImGui.Checkbox( "Time", ref EditorScaleAxisX );
-            ImGui.SameLine();
-            ImGui.Checkbox( "Value", ref EditorScaleAxisY );
+            if( !IsColor )
+            {
+                ImGui.SameLine();
+                ImGui.Checkbox( "Value", ref EditorScaleAxisY );
+            }
 
             if( ImGui.Button( "Apply" ) ) Scale( );
         }
@@ -353,14 +359,16 @@ namespace VfxEditor.AvfxFormat {
         private void Move( )
         {
             var commands = new List<ICommand>();
-            Selected.ForEach( x => x.Move( commands, EditorMoveX, EditorMoveY ) );
+            var moveY = IsColor ? 0 : EditorMoveY;
+            Selected.ForEach( x => x.Move( commands, EditorMoveX, moveY ) );
             CommandManager.Add( new CompoundCommand( commands, Update ) );
         }
 
         private void Scale( )
         {
             var commands = new List<ICommand>();
-            Selected.ForEach( x => x.Scale( commands, EditorScaleAxisX ? EditorScaleFactor : 1, EditorScaleAxisY ? EditorScaleFactor : 1 ) );
+            var scaleY = IsColor && EditorScaleAxisY ? 1 : EditorScaleFactor;
+            Selected.ForEach( x => x.Scale( commands, EditorScaleAxisX ? EditorScaleFactor : 1, scaleY ) );
             CommandManager.Add( new CompoundCommand( commands, Update ) );
         }
 
