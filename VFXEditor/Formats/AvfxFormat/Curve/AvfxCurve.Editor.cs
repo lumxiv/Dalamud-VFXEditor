@@ -138,8 +138,14 @@ namespace VfxEditor.AvfxFormat {
 
                         using var popup = ImRaii.Popup( "CurvePopup" );
                         if( popup ) {
-                            using var disabled = ImRaii.Disabled( CopiedKeys.Count == 0 );
-                            if( ImGui.Selectable( $"Paste at frame {( int )PopupFrame}" ) ) PasteAtFrame( PopupFrame );
+                            using (ImRaii.Disabled( CopiedKeys.Count == 0 )) {
+                                if( ImGui.Selectable( $"Paste at frame {( int )PopupFrame}" ) ) PasteAtFrame( PopupFrame );
+                            }
+                            using( ImRaii.Disabled( Selected.Count == 0 ) )
+                            {
+                                if( ImGui.Selectable( $"Move selected by [{EditorMoveX};{EditorMoveY}]" ) ) Move();
+                                if( ImGui.Selectable( $"Scale selected by {EditorScaleFactor} ({(EditorScaleAxisX ? "Y" : "N")};{( EditorScaleAxisY ? "Y" : "N" )})" ) ) Scale();
+                            }
                         }
                     }
                 }
@@ -239,7 +245,7 @@ namespace VfxEditor.AvfxFormat {
 
             ImGui.InputFloat( "Value", ref EditorMoveY );
 
-            if( ImGui.Button( "OK" ) ) Move( );
+            if( ImGui.Button( "Apply" ) ) Move( );
         }
 
         private void ScalePopup()
@@ -253,7 +259,7 @@ namespace VfxEditor.AvfxFormat {
             ImGui.SameLine();
             ImGui.Checkbox( "Value", ref EditorScaleAxisY );
 
-            if( ImGui.Button( "OK" ) ) Scale( );
+            if( ImGui.Button( "Apply" ) ) Scale( );
         }
 
         private void DrawWrongOrder() {
