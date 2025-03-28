@@ -187,7 +187,7 @@ namespace VfxEditor.Formats.AtchFormat {
         }
 
         public override void Draw() {
-            DrawCurrentWeapons();
+            //DrawCurrentWeapons();
 
             ImGui.Separator();
 

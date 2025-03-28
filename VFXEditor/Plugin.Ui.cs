@@ -120,7 +120,8 @@ namespace VfxEditor {
                 },
                 new IFileManager[]{
                     MdlManager,
-                    MtrlManager,
+                    //FIXME 7.2
+                    //MtrlManager,
                     ShpkManager,
                     ShcdManager
                 }

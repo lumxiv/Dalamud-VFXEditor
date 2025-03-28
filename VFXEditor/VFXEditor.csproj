@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net9.0-windows7.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <AssemblyTitle>VFXEditor</AssemblyTitle>
         <Company></Company>
@@ -61,6 +61,9 @@
             <HintPath>$(DalamudLibPath)ImGuiScene.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="InteropGenerator.Runtime">
+          <HintPath>..\..\Dalamud\lib\FFXIVClientStructs\InteropGenerator.Runtime\bin\Debug\net9.0\InteropGenerator.Runtime.dll</HintPath>
+        </Reference>
         <Reference Include="Lumina">
             <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
             <Private>False</Private>
@@ -105,7 +108,7 @@
 
     <ItemGroup>
         <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />
-        <PackageReference Include="DalamudPackager" Version="11.0.0" />
+        <PackageReference Include="DalamudPackager" Version="12.0.0" />
         <PackageReference Include="Google.FlatBuffers" Version="24.3.25" />
         <PackageReference Include="HelixToolkit" Version="2.26.0" />
         <PackageReference Include="HelixToolkit.SharpDX.Core" Version="2.26.0" />

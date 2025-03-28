@@ -128,7 +128,8 @@ namespace VfxEditor {
             SkpManager = new();
             ShpkManager = new();
             ShcdManager = new();
-            MtrlManager = new();
+            //FIXME 7.2
+            //MtrlManager = new();
             MdlManager = new();
             KdbManager = new();
             PbdManager = new();

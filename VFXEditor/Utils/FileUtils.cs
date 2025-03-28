@@ -113,7 +113,7 @@ namespace VfxEditor.Utils {
             return ret ? VerifiedStatus.VERIFIED : VerifiedStatus.ERROR;
         }
 
-        public static string Reverse( string data ) => new( data.ToCharArray().Reverse().ToArray() );
+        public static string Reverse( string data ) => new( data.ToCharArray().AsEnumerable().Reverse().ToArray() );
 
         public static long PadTo( BinaryWriter writer, long multiple ) => PadTo( writer, writer.BaseStream.Position, multiple );
 
