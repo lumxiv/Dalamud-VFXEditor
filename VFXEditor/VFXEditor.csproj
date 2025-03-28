@@ -62,7 +62,7 @@
             <Private>False</Private>
         </Reference>
         <Reference Include="InteropGenerator.Runtime">
-          <HintPath>..\..\Dalamud\lib\FFXIVClientStructs\InteropGenerator.Runtime\bin\Debug\net9.0\InteropGenerator.Runtime.dll</HintPath>
+          <HintPath>$(DalamudLibPath)InteropGenerator.Runtime.dll</HintPath>
         </Reference>
         <Reference Include="Lumina">
             <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
