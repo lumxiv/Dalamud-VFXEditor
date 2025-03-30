@@ -83,6 +83,9 @@ namespace VfxEditor.AvfxFormat {
         public readonly AvfxBool SSVEnabled = new( "SSV Enabled", "bSSV" );
         public readonly AvfxFloat SSVa = new( "SSVa", "SSVa" );
 
+        //7.2
+        public readonly AvfxInt bOSE = new( "bOSE", "bOSE" );
+
         public readonly AvfxNodeGroupSet NodeGroupSet;
 
         private readonly List<AvfxBase> Parsed;
@@ -163,6 +166,7 @@ namespace VfxEditor.AvfxFormat {
                 SBVa,
                 SSVEnabled,
                 SSVa,
+                bOSE,
             ];
 
             NodeGroupSet = new( this );
@@ -212,6 +216,7 @@ namespace VfxEditor.AvfxFormat {
                 SBVa,
                 SSVEnabled,
                 SSVa,
+                bOSE,
             ];
         }
 

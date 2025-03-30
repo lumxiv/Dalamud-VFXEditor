@@ -22,6 +22,7 @@ namespace VfxEditor.AvfxFormat {
         public readonly AvfxIntList MaskTextureIdx = new( "Mask Index", "TLst", value: -1 );
         public readonly AvfxCurve TexN = new( "TexN", "TxN" );
         public readonly AvfxCurve TexNRandom = new( "TexN Random", "TxNR" );
+        public readonly AvfxBool bUOS = new( "bUOS", "bUOS" );
 
         private readonly List<AvfxBase> Parsed;
 
@@ -43,13 +44,15 @@ namespace VfxEditor.AvfxFormat {
                 TextureIdx,
                 MaskTextureIdx,
                 TexN,
-                TexNRandom
+                TexNRandom,
+                bUOS,
             ];
 
             Display.Add( Enabled );
             Display.Add( ColorToAlpha );
             Display.Add( UseScreenCopy );
             Display.Add( PreviousFrameCopy );
+            Display.Add( bUOS );
             Display.Add( UvSetIdx );
             Display.Add( TextureFilter );
             Display.Add( TextureBorderU );

@@ -41,15 +41,11 @@ namespace VfxEditor.Interop.Havok {
                     return;
                 }
 
-                var rootLevelName = @"hkRootLevelContainer"u8;
-                fixed( byte* n1 = rootLevelName ) {
-                    Container = ( hkRootLevelContainer* )Resource->GetContentsPointer( n1, hkBuiltinTypeRegistry.Instance()->GetTypeInfoRegistry() );
-                    var animationName = @"hkaAnimationContainer"u8;
-                    fixed( byte* n2 = animationName ) {
-                        AnimationContainer = ( hkaAnimationContainer* )Container->findObjectByName( n2, null );
-                        OnHavokLoad();
-                    }
-                }
+                var rootLevelName = "hkRootLevelContainer";
+                Container = ( hkRootLevelContainer* )Resource->GetContentsPointer( rootLevelName, hkBuiltinTypeRegistry.Instance()->GetTypeInfoRegistry() );
+                var animationName = "hkaAnimationContainer";
+                AnimationContainer = ( hkaAnimationContainer* )Container->findObjectByName( animationName, null );
+                OnHavokLoad();
 
                 Marshal.FreeHGlobal( path );
             }

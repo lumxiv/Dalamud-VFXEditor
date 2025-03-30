@@ -21,6 +21,7 @@ namespace VfxEditor.AvfxFormat {
         public readonly AvfxEnum<TextureCalculateColor> TextureCalculateColor = new( "Calculate Color", "TCCT" );
         public readonly AvfxEnum<TextureCalculateAlpha> TextureCalculateAlpha = new( "Calculate Alpha", "TCAT" );
         public readonly AvfxInt TextureIdx = new( "Texture Index", "TxNo", value: -1 );
+        public readonly AvfxBool bUOS = new( "bUOS", "bUOS" );
 
         private readonly List<AvfxBase> Parsed;
 
@@ -40,13 +41,15 @@ namespace VfxEditor.AvfxFormat {
                 TextureBorderV,
                 TextureCalculateColor,
                 TextureCalculateAlpha,
-                TextureIdx
+                TextureIdx,
+                bUOS
             ];
 
             Display.Add( Enabled );
             Display.Add( ColorToAlpha );
             Display.Add( UseScreenCopy );
             Display.Add( PreviousFrameCopy );
+            Display.Add( bUOS );
             Display.Add( UvSetIdx );
             Display.Add( TextureFilter );
             Display.Add( TextureBorderU );
