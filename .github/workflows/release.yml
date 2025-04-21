@@ -24,11 +24,11 @@ jobs:
           Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
       - name: Build
         run: |
-          $ver = '${{ github.ref_name }}'
+          $ver = '${{ github.ref_name }}.0'
           invoke-expression 'dotnet build --no-restore --configuration Beta --nologo -p:Version=$ver -p:FileVersion=$ver -p:AssemblyVersion=$ver'
       - name: write version into jsons
         run: |
-          $ver = '${{ github.ref_name }}'
+          $ver = '${{ github.ref_name }}.0'
           $path = './VFXEditor/bin/Beta/VFXEditor-Beta.json'
           $json = Get-Content -Raw $path | ConvertFrom-Json
           $json.AssemblyVersion = $ver
@@ -47,8 +47,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: VFXEditor Beta ${{ github.ref }}
+          tag_name: ${{ github.ref }}.0
+          release_name: VFXEditor Dev ${{ github.ref }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
@@ -61,27 +61,3 @@ jobs:
           asset_path: ./VFXEditor-Beta.zip
           asset_name: VFXEditor-Beta.zip
           asset_content_type: application/zip
-
-      - name: Write out repo.json
-        run: |
-          $ver = '${{ github.ref_name }}'
-          $path = './repo.json'
-          $json = Get-Content -Raw $path | ConvertFrom-Json
-          $json[0].AssemblyVersion = $ver
-          $json[0].TestingAssemblyVersion = $ver
-          $json[0].DownloadLinkInstall = $json.DownloadLinkInstall -replace '[^/]+/VFXEditor-Beta.zip',"$ver/VFXEditor-Beta.zip"
-          $json[0].DownloadLinkTesting = $json.DownloadLinkTesting -replace '[^/]+/VFXEditor-Beta.zip',"$ver/VFXEditor-Beta.zip"
-          $json[0].DownloadLinkUpdate = $json.DownloadLinkUpdate -replace '[^/]+/VFXEditor-Beta.zip',"$ver/VFXEditor-Beta.zip"
-          $content = $json | ConvertTo-Json -AsArray
-          set-content -Path $path -Value $content
-
-      - name: Commit repo.json
-        run: |
-          git config --global user.name "Actions User"
-          git config --global user.email "actions@github.com"
-          git fetch origin main
-          git branch -f main ${{ github.sha }}
-          git checkout main
-          git add repo.json
-          git commit -m "[CI] Updating repo.json for ${{ github.ref_name }}" || true
-          git push origin main
