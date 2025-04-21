@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Xml.Linq;
 using VfxEditor.AvfxFormat;
 using VfxEditor.Data.Command.ListCommands;
 using VfxEditor.DirectX;
@@ -20,6 +21,24 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
         None,
         Some,
         All
+    }
+
+    public enum OperationType
+    {
+        Add = 0,
+        Multiply = 1
+    }
+
+    public class EditorOperation
+    {
+        public OperationType operationType;
+        public float X;
+        public float Y;
+        public EditorOperation() { 
+            operationType = OperationType.Add;
+            X = 0;
+            Y = 0;
+        }
     }
 
     public class LineEditorGroup {
@@ -65,6 +84,8 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
         private ImPlotPoint SavedPoint = new();
 
         private static readonly Dictionary<string, List<(KeyType, Vector4)>> CopiedKeys = [];
+
+        public EditorOperation editorOperation = new();
 
         public LineEditorGroup( AvfxCurveData curve ) {
             Name = curve.Name;
@@ -161,6 +182,9 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
 
                 ImGui.SameLine();
                 if( UiUtils.DisabledButton( $"{FontAwesomeIcon.ArrowRightToBracket.ToIconString()}", CopiedKeys.Count > 0 ) ) Replace();
+
+                ImGui.SameLine();
+                if( UiUtils.DisabledButton( $"{FontAwesomeIcon.Edit.ToIconString()}", Selected.Count > 0 ) ) Operation();
 
                 ImGui.SameLine();
                 if( UiUtils.RemoveButton( $"{FontAwesomeIcon.Times.ToIconString()}" ) ) Clear();
@@ -434,6 +458,23 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
         private void Replace() => PerformOnCopiedKeys( ( List<ICommand> commands, List<(KeyType, Vector4)> keys, AvfxCurveData curve ) => {
             commands.Add( new ListSetCommand<AvfxCurveKey>( curve.Keys, [.. keys.Select( x => new AvfxCurveKey( curve, x ) )] ) );
         } );
+
+        private void Operation() {
+            var commands = new List<ICommand>();
+            var valueY = IsColor ? 0 : editorOperation.Y;
+            Func<float, float, float> op = ( x, y ) => { return 0; };
+            switch( editorOperation.operationType )
+            {
+                case OperationType.Add:
+                    { op = ( x, y ) => { return x + y; }; break; }
+
+                case OperationType.Multiply:
+                    { op = ( x, y ) => { return x * y; }; break; }
+            }
+            Selected.ForEach( x => x.Item2.Operation( commands, editorOperation.X, valueY, op ) );
+
+            CommandManager.Add( new CompoundCommand( commands, OnUpdate ) );
+        }
 
         private void PerformOnCopiedKeys( Action<List<ICommand>, List<(KeyType, Vector4)>, AvfxCurveData> action ) {
             var commands = new List<ICommand>();
