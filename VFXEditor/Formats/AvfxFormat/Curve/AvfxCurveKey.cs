@@ -242,5 +242,18 @@ namespace VfxEditor.AvfxFormat {
 
             return ret;
         }
+
+        public void Operation( List<ICommand> commands, float x, float y, Func<float, float, float> op )
+        {
+            var newTime = ( int )Math.Round( op(Time.Value, x) );
+            commands.Add( new ParsedSimpleCommand<int>( Time, Time.Value, newTime >= 0 ? newTime : 0 ) );
+            var scaledVector = new Vector3
+            {
+                X = Data.Value.X,
+                Y = Data.Value.Y,
+                Z = op(Data.Value.Z, y)
+            };
+            commands.Add( new ParsedSimpleCommand<Vector3>( Data, Data.Value, scaledVector ) );
+        }
     }
 }
