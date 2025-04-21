@@ -279,11 +279,11 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
 
             if( ImGui.Button( editorOperation.operationType + "" )) ToggleOperation();
 
-            ImGui.InputFloat( "Time", ref editorOperation.X );
+            ImGui.InputFloat( "Frame", ref editorOperation.X );
 
             if( !IsColor )
             {
-                ImGui.InputFloat( "Frame", ref editorOperation.Y );
+                ImGui.InputFloat( "Value", ref editorOperation.Y );
             }
 
             if( ImGui.Button( "Apply" ) ) Operation();
