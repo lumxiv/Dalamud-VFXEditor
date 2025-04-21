@@ -14,6 +14,7 @@ using VfxEditor.Formats.AvfxFormat.Assign;
 using VfxEditor.Parsing;
 using VfxEditor.Utils;
 using VFXEditor.Formats.AvfxFormat.Curve;
+using static FFXIVClientStructs.FFXIV.Client.LayoutEngine.FileLayerGroupLayerFilter;
 using static VfxEditor.AvfxFormat.Enums;
 
 namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
@@ -38,6 +39,13 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
             operationType = OperationType.Add;
             X = 0;
             Y = 0;
+        }
+
+        public void NextOperation()
+        {
+            OperationType[] Arr = ( OperationType[] )Enum.GetValues( operationType.GetType() );
+            int j = Array.IndexOf( Arr, operationType ) + 1;
+            operationType = ( Arr.Length == j ) ? Arr[0] : Arr[j];
         }
     }
 
@@ -184,7 +192,7 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
                 if( UiUtils.DisabledButton( $"{FontAwesomeIcon.ArrowRightToBracket.ToIconString()}", CopiedKeys.Count > 0 ) ) Replace();
 
                 ImGui.SameLine();
-                if( UiUtils.DisabledButton( $"{FontAwesomeIcon.Edit.ToIconString()}", Selected.Count > 0 ) ) Operation();
+                if( UiUtils.DisabledButton( $"{FontAwesomeIcon.Edit.ToIconString()}", Selected.Count > 0 ) ) ImGui.OpenPopup( "OperationPopup" );
 
                 ImGui.SameLine();
                 if( UiUtils.RemoveButton( $"{FontAwesomeIcon.Times.ToIconString()}" ) ) Clear();
@@ -242,6 +250,43 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
                     }
                 }
             }
+
+            OperationPopup();
+        }
+
+        private void ToggleOperation()
+        {
+            switch( editorOperation.operationType )
+            {
+                case OperationType.Add:
+                    { editorOperation.operationType = OperationType.Multiply;
+                        editorOperation.X = 1;
+                        editorOperation.Y = 1;
+                        break; }
+
+                case OperationType.Multiply:
+                    { editorOperation.operationType = OperationType.Add;
+                        editorOperation.X = 0;
+                        editorOperation.Y = 0;
+                        break; }
+            }
+        }
+
+        private void OperationPopup()
+        {
+            using var popup = ImRaii.Popup( "OperationPopup" );
+            if( !popup ) return;
+
+            if( ImGui.Button( editorOperation.operationType + "" )) ToggleOperation();
+
+            ImGui.InputFloat( "Time", ref editorOperation.X );
+
+            if( !IsColor )
+            {
+                ImGui.InputFloat( "Frame", ref editorOperation.Y );
+            }
+
+            if( ImGui.Button( "Apply" ) ) Operation();
         }
 
         public unsafe void DrawEditor() {
