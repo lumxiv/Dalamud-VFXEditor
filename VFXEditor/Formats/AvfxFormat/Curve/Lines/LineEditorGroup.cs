@@ -506,7 +506,18 @@ namespace VfxEditor.Formats.AvfxFormat.Curve.Lines {
 
         private void Operation() {
             var commands = new List<ICommand>();
-            var valueY = IsColor ? 0 : editorOperation.Y;
+            var valueY = editorOperation.Y;
+            if(IsColor)
+            {
+                switch( editorOperation.operationType )
+                {
+                    case OperationType.Add:
+                        valueY = 0; break;
+
+                    case OperationType.Multiply:
+                        valueY = 1; break;
+                }
+            }
             Func<float, float, float> op = ( x, y ) => { return 0; };
             switch( editorOperation.operationType )
             {
