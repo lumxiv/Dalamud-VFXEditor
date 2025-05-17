@@ -41,15 +41,11 @@ namespace VfxEditor.Interop.Havok {
                     return;
                 }
 
-                var rootLevelName = @"hkRootLevelContainer"u8;
-                fixed( byte* n1 = rootLevelName ) {
-                    Container = ( hkRootLevelContainer* )Resource->GetContentsPointer( n1, hkBuiltinTypeRegistry.Instance()->GetTypeInfoRegistry() );
-                    var animationName = @"hkaAnimationContainer"u8;
-                    fixed( byte* n2 = animationName ) {
-                        AnimationContainer = ( hkaAnimationContainer* )Container->findObjectByName( n2, null );
-                        OnHavokLoad();
-                    }
-                }
+                var rootLevelName = "hkRootLevelContainer";
+                Container = ( hkRootLevelContainer* )Resource->GetContentsPointer( rootLevelName, hkBuiltinTypeRegistry.Instance()->GetTypeInfoRegistry() );
+                var animationName = "hkaAnimationContainer";
+                AnimationContainer = ( hkaAnimationContainer* )Container->findObjectByName( animationName, null );
+                OnHavokLoad();
 
                 Marshal.FreeHGlobal( path );
             }
@@ -62,27 +58,25 @@ namespace VfxEditor.Interop.Havok {
 
         protected void WriteHavok() {
             try {
-                var rootLevelName = @"hkRootLevelContainer"u8;
-                fixed( byte* n1 = rootLevelName ) {
-                    var result = stackalloc hkResult[1];
+                var rootLevelName = "hkRootLevelContainer";
+                var result = stackalloc hkResult[1];
 
-                    var className = hkBuiltinTypeRegistry.Instance()->GetClassNameRegistry()->GetClassByName( n1 );
+                var className = hkBuiltinTypeRegistry.Instance()->GetClassNameRegistry()->GetClassByName( rootLevelName );
 
-                    Dalamud.Log( $"Writing Havok to {Path}" );
+                Dalamud.Log( $"Writing Havok to {Path}" );
 
-                    var oStream = stackalloc hkOstream[1];
-                    oStream->Ctor( Path );
+                var oStream = stackalloc hkOstream[1];
+                oStream->Ctor( Path );
 
-                    var saveOptions = new hkSerializeUtil.SaveOptions {
-                        Flags = new hkFlags<hkSerializeUtil.SaveOptionBits, int> {
-                            Storage = ( int )hkSerializeUtil.SaveOptionBits.Default
-                        }
-                    };
+                var saveOptions = new hkSerializeUtil.SaveOptions {
+                    Flags = new hkFlags<hkSerializeUtil.SaveOptionBits, int> {
+                        Storage = ( int )hkSerializeUtil.SaveOptionBits.Default
+                    }
+                };
 
-                    hkSerializeUtil.Save( result, Container, className, oStream->StreamWriter.ptr, saveOptions );
+                hkSerializeUtil.Save( result, Container, className, oStream->StreamWriter.ptr, saveOptions );
 
-                    oStream->Dtor();
-                }
+                oStream->Dtor();
             }
             catch( Exception e ) {
                 Dalamud.Error( e, $"Could not export to: {Path}" );
