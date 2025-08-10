@@ -1,7 +1,7 @@
 using Dalamud.Interface;
 using Dalamud.Interface.Style;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -268,19 +268,21 @@ namespace VfxEditor.Utils {
 
         private delegate bool DrawRadiansInputDelegate<T>( string label, ref T value );
 
-        public static bool DrawRadians( string name, float oldValue, out float newValue ) => DrawRadians( name, oldValue, out newValue, ToDegrees, ToRadians, ImGui.InputFloat );
+        public static bool DrawRadians( string name, float oldValue, out float newValue ) => DrawRadians( name, oldValue, out newValue, ToDegrees, ToRadians );
 
-        public static bool DrawRadians3( string name, Vector3 oldValue, out Vector3 newValue ) => DrawRadians( name, oldValue, out newValue, ToDegrees, ToRadians, ImGui.InputFloat3 );
+        public static bool DrawRadians3( string name, Vector3 oldValue, out Vector3 newValue ) => DrawRadians3( name, oldValue, out newValue, ToDegrees, ToRadians );
 
-        public static bool DrawRadians4( string name, Vector4 oldValue, out Vector4 newValue ) => DrawRadians( name, oldValue, out newValue, ToDegrees, ToRadians, ImGui.InputFloat4 );
+        public static bool DrawRadians4( string name, Vector4 oldValue, out Vector4 newValue ) => DrawRadians4( name, oldValue, out newValue, ToDegrees, ToRadians );
 
-        private static bool DrawRadians<T>( string name, T oldValue, out T newValue, Func<T, T> toDegrees, Func<T, T> toRadians, DrawRadiansInputDelegate<T> input ) {
+        private static bool DrawRadians( string name, float oldValue, out float newValue, Func<float, float> toDegrees, Func<float, float> toRadians)
+        {
             newValue = oldValue;
             var needToConvert = Plugin.Configuration.UseDegreesForAngles;
             var value = needToConvert ? toDegrees( oldValue ) : oldValue;
 
             ImGui.SetNextItemWidth( GetOffsetInputSize( 15 + ImGui.GetStyle().ItemInnerSpacing.X ) );
-            if( input( "##Input", ref value ) ) {
+            if( ImGui.InputFloat( "##Input", ref value ) )
+            {
                 newValue = needToConvert ? toRadians( value ) : value;
                 return true;
             }
@@ -288,6 +290,41 @@ namespace VfxEditor.Utils {
             DrawAngleToggle( name );
             return false;
         }
+
+        private static bool DrawRadians3( string name, Vector3 oldValue, out Vector3 newValue, Func<Vector3, Vector3> toDegrees, Func<Vector3, Vector3> toRadians)
+        {
+            newValue = oldValue;
+            var needToConvert = Plugin.Configuration.UseDegreesForAngles;
+            var value = needToConvert ? toDegrees( oldValue ) : oldValue;
+
+            ImGui.SetNextItemWidth( GetOffsetInputSize( 15 + ImGui.GetStyle().ItemInnerSpacing.X ) );
+            if( ImGui.InputFloat3( "##Input", ref value ) )
+            {
+                newValue = needToConvert ? toRadians( value ) : value;
+                return true;
+            }
+
+            DrawAngleToggle( name );
+            return false;
+        }
+
+        private static bool DrawRadians4( string name, Vector4 oldValue, out Vector4 newValue, Func<Vector4, Vector4> toDegrees, Func<Vector4, Vector4> toRadians )
+        {
+            newValue = oldValue;
+            var needToConvert = Plugin.Configuration.UseDegreesForAngles;
+            var value = needToConvert ? toDegrees( oldValue ) : oldValue;
+
+            ImGui.SetNextItemWidth( GetOffsetInputSize( 15 + ImGui.GetStyle().ItemInnerSpacing.X ) );
+            if( ImGui.InputFloat4( "##Input", ref value ) )
+            {
+                newValue = needToConvert ? toRadians( value ) : value;
+                return true;
+            }
+
+            DrawAngleToggle( name );
+            return false;
+        }
+
 
         public static bool DrawDegrees3( string name, Vector3 oldValue, out Vector3 newValue ) {
             newValue = oldValue;
@@ -338,7 +375,7 @@ namespace VfxEditor.Utils {
             var listModified = false;
 
             if( ImGui.BeginDragDropSource( ImGuiDragDropFlags.None ) ) {
-                ImGui.SetDragDropPayload( id, IntPtr.Zero, 0 );
+                ImGui.SetDragDropPayload( id, new Span<byte>(), 0 );
                 draggingItem = item;
                 ImGui.Text( text );
                 ImGui.EndDragDropSource();
@@ -355,7 +392,7 @@ namespace VfxEditor.Utils {
             if( draggingItem == null ) return false;
 
             var payload = ImGui.AcceptDragDropPayload( id );
-            if( payload.NativePtr == null ) return false;
+            if( payload.Handle == null ) return false;
 
             if( draggingItem != destination && items.Contains( draggingItem ) && items.Contains( destination ) ) {
                 var command = new ListMoveCommand<T>( items, draggingItem, destination );
@@ -394,7 +431,7 @@ namespace VfxEditor.Utils {
             var type = typeof( T );
             var forceOpen = ForceOpenTabs.Contains( type );
             if( forceOpen ) ForceOpenTabs.Remove( type );
-            return ImGuiNative.igBeginTabItem( labelRef, null, forceOpen ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None ) == 1;
+            return ImGuiNative.BeginTabItem( labelRef, null, forceOpen ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None ) == 1;
         }
     }
 }

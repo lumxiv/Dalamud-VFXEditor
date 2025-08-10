@@ -1,4 +1,5 @@
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
+using System;
 using System.IO;
 using Int4 = SharpDX.Int4;
 
@@ -24,7 +25,9 @@ namespace VfxEditor.Parsing.Int {
 
         protected override void DrawBody() {
             var value = Value.ToArray();
-            if( ImGui.InputInt3( Name, ref value[0] ) ) {
+            Span<int> span = value;
+
+            if( ImGui.InputInt( Name, ref span[0] ) ) {
                 Update( value );
             }
         }

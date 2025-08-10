@@ -1,6 +1,6 @@
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,14 +42,14 @@ namespace VfxEditor.Parsing {
 
         public override void Draw() => Draw( 255, Name, 0, ImGuiInputTextFlags.None );
 
-        public void Draw( uint maxSize, string label, float offset, ImGuiInputTextFlags flags ) {
+        public void Draw( Int32 maxSize, string label, float offset, ImGuiInputTextFlags flags ) {
             DrawInput( maxSize, label, offset, flags );
             DrawIcons();
         }
 
         protected override void DrawBody() { }
 
-        public void DrawInput( uint maxSize, string label, float offset, ImGuiInputTextFlags flags ) {
+        public void DrawInput( Int32 maxSize, string label, float offset, ImGuiInputTextFlags flags ) {
             CopyPaste();
             using var _ = ImRaii.PushId( Name );
 

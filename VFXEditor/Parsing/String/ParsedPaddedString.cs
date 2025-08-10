@@ -1,4 +1,4 @@
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.IO;
 
@@ -46,6 +46,6 @@ namespace VfxEditor.Parsing.String {
             for( var i = 0; i < ( Length - Value.Length - 1 ); i++ ) writer.Write( Value.Length == 0 ? ( byte )0 : Padding );
         }
 
-        public override void Draw() => Draw( ( uint )( Length - 1 ), Name, 0, ImGuiInputTextFlags.None );
+        public override void Draw() => Draw(  Length - 1, Name, 0, ImGuiInputTextFlags.None );
     }
 }
