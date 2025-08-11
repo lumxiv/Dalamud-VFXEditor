@@ -25,12 +25,12 @@ namespace VfxEditor.Select.Tabs.Emotes {
                     Type = type
                 };
 
-                if( type == EmoteRowType.Normal ) {
+                if( type == EmoteRowType.Normal && key != "event/event_bt_active" ) {
                     // bt_common, per race (chara/human/{RACE}/animation/a0001/bt_common/emote/add_yes.pap)
                     entry.ActionData = SelectDataUtils.FileExistsFilter( SelectDataUtils.GetAllSkeletonPaths( $"bt_common/{key}.pap" ) );
 
                 }
-                else if( type == EmoteRowType.PerJob ) {
+                else if( type == EmoteRowType.PerJob || key == "event/event_bt_active" ) {
                     // chara/human/c0101/animation/a0001/bt_swd_sld/emote/battle01.pap
                     entry.JobData = SelectDataUtils.JobAnimationIds.ToDictionary(
                         x => x.Key,
@@ -67,8 +67,8 @@ namespace VfxEditor.Select.Tabs.Emotes {
                 using var _ = ImRaii.PushId( key );
                 using var child = ImRaii.Child( "Child", new Vector2( -1 ), false );
 
-                if( paths.Type == EmoteRowType.Normal ) Dialog.DrawPaths( paths.ActionData, $"{Selected.Name} {key}", SelectResultType.GameEmote );
-                else if( paths.Type == EmoteRowType.PerJob ) Dialog.DrawPaths( paths.JobData, $"{Selected.Name} {key}", SelectResultType.GameEmote );
+                if( paths.Type == EmoteRowType.Normal && key != "event/event_bt_active" ) Dialog.DrawPaths( paths.ActionData, $"{Selected.Name} {key}", SelectResultType.GameEmote );
+                else if( paths.Type == EmoteRowType.PerJob || key == "event/event_bt_active" ) Dialog.DrawPaths( paths.JobData, $"{Selected.Name} {key}", SelectResultType.GameEmote );
                 else if( paths.Type == EmoteRowType.Facial ) Dialog.DrawPaths( paths.FaceData, $"{Selected.Name} {key}", SelectResultType.GameEmote );
             }
         }
