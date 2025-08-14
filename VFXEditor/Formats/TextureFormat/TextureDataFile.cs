@@ -1,6 +1,6 @@
 using BCnEncoder.Decoder;
 using Lumina.Data;
-using Lumina.Data.Parsing.Tex;
+using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +10,7 @@ using TeximpNet.Compression;
 using TeximpNet.DDS;
 using VfxEditor.FileBrowser;
 using VfxEditor.Formats.TextureFormat.CustomTeximpNet;
+using Surface = TeximpNet.Surface;
 
 namespace VfxEditor.Formats.TextureFormat {
     public enum Attribute : uint {
@@ -168,13 +169,13 @@ namespace VfxEditor.Formats.TextureFormat {
 
             switch( format ) {
                 case TextureFormat.DXT1:
-                    DecompressDxt1( data, writer, width, height * layers );
+                    DecompressBc( data, writer, width, height * layers, BCnEncoder.Shared.CompressionFormat.Bc1 );
                     break;
                 case TextureFormat.DXT3:
-                    DecompressDxt3( data, writer, width, height * layers );
+                    DecompressBc( data, writer, width, height * layers, BCnEncoder.Shared.CompressionFormat.Bc2 );
                     break;
                 case TextureFormat.DXT5:
-                    DecompressDxt5( data, writer, width, height * layers );
+                    DecompressBc( data, writer, width, height * layers, BCnEncoder.Shared.CompressionFormat.Bc3 );
                     break;
                 case TextureFormat.A8R8G8B8:
                     writer.Write( data ); // already ok
@@ -258,18 +259,6 @@ namespace VfxEditor.Formats.TextureFormat {
                 writer.Write( ( byte )0xFF );
                 writer.Write( data[i] );
             }
-        }
-
-        private static void DecompressDxt1( byte[] data, BinaryWriter writer, int width, int height ) {
-            writer.Write( Squish.DecompressImage( data, width, height, SquishOptions.DXT1 ) );
-        }
-
-        private static void DecompressDxt3( byte[] data, BinaryWriter writer, int width, int height ) {
-            writer.Write( Squish.DecompressImage( data, width, height, SquishOptions.DXT3 ) );
-        }
-
-        private static void DecompressDxt5( byte[] data, BinaryWriter writer, int width, int height ) {
-            writer.Write( Squish.DecompressImage( data, width, height, SquishOptions.DXT5 ) );
         }
 
         private static void DecompressBc( byte[] data, BinaryWriter writer, int width, int height, BCnEncoder.Shared.CompressionFormat format ) {
