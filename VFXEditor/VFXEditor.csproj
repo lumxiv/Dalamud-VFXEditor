@@ -1,4 +1,4 @@
-<Project Sdk="Dalamud.NET.Sdk/13.0.0">
+<Project Sdk="Dalamud.NET.Sdk/14.0.1">
     <PropertyGroup>
         <AssemblyTitle>VFXEditor</AssemblyTitle>
         <Company></Company>
@@ -14,6 +14,7 @@
         <OutputType>Library</OutputType>
         <OutputPath>bin\$(Configuration)\</OutputPath>
         <Configurations>Debug;Release;Beta</Configurations>
+        <TargetFramework>net10.0-windows8.0</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">
@@ -35,8 +36,10 @@
         <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
         <PackageReference Include="NAudio.WinMM" Version="2.2.1" />
-        <PackageReference Include="Penumbra.Api" Version="5.10.0" />
+        <PackageReference Include="Penumbra.Api" Version="5.13.0" />
         <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
+        <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+        <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
         <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.5" />
         <PackageReference Include="TeximpNet" Version="1.4.3" />
     </ItemGroup>
@@ -175,6 +178,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Update="DalamudPackager" Version="13.0.0" />
+      <PackageReference Update="DalamudPackager" Version="14.0.1" />
     </ItemGroup>
 </Project>

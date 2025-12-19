@@ -33,7 +33,7 @@ namespace VfxEditor.Data.Excel {
     }
 
     [Sheet( "CharaMakeType" )]
-    public struct CharaMakeType( uint row ) : IExcelRow<CharaMakeType> {
+    public struct CharaMakeType( ExcelPage page, uint offset, uint row ) : IExcelRow<CharaMakeType> {
         // Consts
 
         public const int MenuCt = 28;
@@ -43,7 +43,9 @@ namespace VfxEditor.Data.Excel {
 
         // Properties
 
-        public readonly uint RowId => row;
+        public ExcelPage ExcelPage => page;
+        public uint RowOffset => offset;
+        public uint RowId => row;
 
         public RowRef<Race> Race { get; set; }
         public RowRef<Tribe> Tribe { get; set; }
@@ -91,7 +93,7 @@ namespace VfxEditor.Data.Excel {
                 menus[i] = menu;
             }
 
-            return new CharaMakeType( row ) {
+            return new CharaMakeType( page, offset, row ) {
                 Race = page.ReadRowRef<Race>( 0, offset ),
                 Tribe = page.ReadRowRef<Tribe>( 1, offset ),
                 Gender = page.ReadColumn<sbyte>( 2, offset ),
