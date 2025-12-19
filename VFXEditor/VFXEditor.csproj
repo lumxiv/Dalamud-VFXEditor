@@ -180,4 +180,8 @@
     <ItemGroup>
       <PackageReference Update="DalamudPackager" Version="14.0.1" />
     </ItemGroup>
+
+    <ItemGroup>
+      <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+    </ItemGroup>
 </Project>
