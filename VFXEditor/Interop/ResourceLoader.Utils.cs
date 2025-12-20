@@ -59,13 +59,15 @@ namespace VfxEditor.Interop {
 
             switch( CurrentRedrawState ) {
                 case RedrawState.Start:
-                    //gameObject->RenderFlags |= INVIS_FLAG;
+                    gameObject->RenderFlags = VisibilityFlags.Model;
+                    //gameObject->RenderFlags |= INVIS_FLAG; //FIXME
                     CurrentRedrawState = RedrawState.Invisible;
                     WaitFrames = 15;
                     break;
                 case RedrawState.Invisible:
                     if( WaitFrames == 0 ) {
-                        //gameObject->RenderFlags &= ~INVIS_FLAG;
+                        gameObject->RenderFlags = VisibilityFlags.None;
+                        //gameObject->RenderFlags &= ~INVIS_FLAG; //FIXME
                         CurrentRedrawState = RedrawState.Visible;
                     }
                     else WaitFrames--;
@@ -119,7 +121,7 @@ namespace VfxEditor.Interop {
 
             if( gameResource != IntPtr.Zero ) {
                 InteropUtils.PrepPap( gameResource, papIds, papTypes );
-                //RequestFile( GetFileManager2(), gameResource + Constants.GameResourceOffset, gameResource, 1 );
+                //RequestFile( GetFileManager2(), gameResource + Constants.GameResourceOffset, gameResource, 1 ); //FIXME
                 InteropUtils.WritePapIds( gameResource, papIds, papTypes );
             }
 
@@ -132,7 +134,7 @@ namespace VfxEditor.Interop {
                 if( gamePath.EndsWith( ".pbd" ) ) ReplacePbd( ( ResourceHandle* )localGameResource );
 
                 InteropUtils.PrepPap( localGameResource, papIds, papTypes );
-                //RequestFile( GetFileManager2(), localGameResource + Constants.GameResourceOffset, localGameResource, 1 );
+                //RequestFile( GetFileManager2(), localGameResource + Constants.GameResourceOffset, localGameResource, 1 ); //FIXME
                 InteropUtils.WritePapIds( localGameResource, papIds, papTypes );
             }
         }

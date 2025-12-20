@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using VfxEditor.Data.Excel;
+using static FFXIVClientStructs.FFXIV.Component.Completion.CompletionModule;
 
 namespace VfxEditor.Select.Data {
     public class RacialData {
@@ -21,18 +22,20 @@ namespace VfxEditor.Select.Data {
         public RacialData( string name, string id, uint row ) {
             Name = name;
             Id = id;
+            Dalamud.Log( name );
 
-            var data = Dalamud.DataManager.GetExcelSheet<CharaMakeType>().GetRow( row );
+            var data = Dalamud.DataManager.GetExcelSheet<Lumina.Excel.Sheets.CharaMakeType>().GetRow( row );
 
-            foreach( var hair in data.FeatureMake.Value.HairStyles ) HairToIcon[hair.Value.FeatureId] = hair.Value.Icon;
+            //FIXME
+            //foreach( var hair in data.FeatureMake.Value.HairStyles ) HairToIcon[hair.Value.FeatureId] = hair.Value.Icon;
 
-            if( data.Menus.FindFirst( x => x.Index == CustomizeIndex.FaceType, out var faceMenu ) ) {
-                foreach( var (param, idx) in faceMenu.Params.WithIndex() ) FaceToIcon[idx + 1] = param;
-            }
+            //if( data.Menus.FindFirst( x => x.Index == CustomizeIndex.FaceType, out var faceMenu ) ) {
+            //    foreach( var (param, idx) in faceMenu.Params.WithIndex() ) FaceToIcon[idx + 1] = param;
+            //}
 
-            if( data.Menus.FindFirst( x => x.Index == CustomizeIndex.RaceFeatureType, out var featureMenu ) ) {
-                foreach( var (param, idx) in featureMenu.Params.WithIndex() ) FeatureToIcon[idx + 1] = param;
-            }
+            //if( data.Menus.FindFirst( x => x.Index == CustomizeIndex.RaceFeatureType, out var featureMenu ) ) {
+            //    foreach( var (param, idx) in featureMenu.Params.WithIndex() ) FeatureToIcon[idx + 1] = param;
+            //}
 
             foreach( var line in File.ReadAllLines( SelectDataUtils.CommonRacialPath ) ) {
                 var split = line.Split( "/" );
