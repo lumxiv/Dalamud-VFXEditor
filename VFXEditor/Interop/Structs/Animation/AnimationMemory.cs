@@ -29,7 +29,7 @@ namespace VfxEditor.Structs.Animation {
 
     [StructLayout( LayoutKind.Explicit )]
     public unsafe struct ActorMemoryStruct {
-        [FieldOffset( 0x0A20 )] public AnimationMemory Animation;
+        [FieldOffset( 0x0A30 )] public AnimationMemory Animation;
         [FieldOffset( 0x2364 )] public byte CharacterMode;
         [FieldOffset( 0x2365 )] public byte CharacterModeInput;
 
