@@ -36,6 +36,8 @@ namespace VfxEditor.Utils {
     public struct WorkspaceWindow {
         public Vector2? Position;
         public Vector2? Size;
+        public bool? UseWindowColor;
+        public Vector4? WindowColor;
     }
 
     public struct WorkspaceWindowMeta {

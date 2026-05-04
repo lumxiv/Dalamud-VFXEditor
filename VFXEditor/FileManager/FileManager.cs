@@ -1,10 +1,12 @@
 using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using VfxEditor.Data.Copy;
 using VfxEditor.FileManager.Interfaces;
 using VfxEditor.Select;
 using VfxEditor.Ui.Export;
+using VfxEditor.Utils;
 
 namespace VfxEditor.FileManager {
     public abstract partial class FileManager<D, F, S> : FileManagerBase, IFileManager where D : FileManagerDocument<F, S> where F : FileManagerFile {
@@ -16,6 +18,9 @@ namespace VfxEditor.FileManager {
 
         private readonly FileManagerDocumentWindow<D, F, S> DocumentWindow;
         public readonly List<D> Documents = [];
+
+        private bool UseWindowColor = false;
+        private Vector4 WindowColor = new( 1, 0, 0, 1 ); // TODO: pick a random one
 
         public FileManager( FileManagerGroupBase group ) : base( group ) {
             DocumentWindow = new( Title, this );
@@ -115,6 +120,17 @@ namespace VfxEditor.FileManager {
             SetSource( selectedFile );
             SetReplace( replacedFile );
             AddDocument();
+        }
+
+        public override WorkspaceWindow ToMeta() => base.ToMeta() with {
+            UseWindowColor = UseWindowColor,
+            WindowColor = WindowColor
+        };
+
+        public override void SetMeta( WorkspaceWindow? meta ) {
+            base.SetMeta( meta );
+            UseWindowColor = meta?.UseWindowColor ?? UseWindowColor;
+            WindowColor = meta?.WindowColor ?? WindowColor;
         }
     }
 }

@@ -29,8 +29,6 @@
 
 
 - [ ] Merge windows
-- [ ] Highlight the selection bar
-- [ ] More / better window colors (maybe can pick directly on the window without going to config?)
 
 ```
 

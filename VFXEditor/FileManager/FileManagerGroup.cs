@@ -77,6 +77,8 @@ namespace VfxEditor.FileManager {
             }
 
             var windows = WorkspaceUtils.GetWindowData( meta, WorkspaceKey );
+            while( ( windows.Length - 1 ) >= Managers.Count ) NewWindow();
+
             foreach( var (manager, idx) in Managers.WithIndex() ) {
                 manager.Show();
                 manager.SetMeta( windows?[idx] );

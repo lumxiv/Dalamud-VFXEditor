@@ -59,12 +59,12 @@ namespace VfxEditor.Ui {
             }
         }
 
-        public WorkspaceWindow ToMeta() => new() {
+        public virtual WorkspaceWindow ToMeta() => new() {
             Position = LastPosition,
             Size = LastSize,
         };
 
-        public void SetMeta( WorkspaceWindow? meta ) {
+        public virtual void SetMeta( WorkspaceWindow? meta ) {
             if( meta?.Size != null ) {
                 SizeCondition = ImGuiCond.Appearing;
                 Size = meta?.Size;

@@ -69,7 +69,7 @@ namespace VfxEditor.FileManager {
         private void DrawTabs() {
             DrawTabsDropdown();
 
-            using var style = ImRaii.PushStyle( ImGuiStyleVar.ItemSpacing, new Vector2( 0, 2 ) );
+            using var smallItemSpacing = ImRaii.PushStyle( ImGuiStyleVar.ItemSpacing, new Vector2( 0, 2 ) );
 
             var drawlist = ImGui.GetWindowDrawList();
             var color = ImGui.GetColorU32( ImGuiCol.TabActive );
@@ -83,7 +83,7 @@ namespace VfxEditor.FileManager {
             using var _ = ImRaii.PushId( "Tabs" );
 
             var size = ImGui.GetContentRegionAvail().X;
-            var popupSize = UiUtils.GetPaddedIconSize( FontAwesomeIcon.ArrowUpRightFromSquare ) - ImGui.GetStyle().ItemInnerSpacing.X;
+            var popupSize = UiUtils.GetPaddedIconSize( FontAwesomeIcon.ArrowUpRightFromSquare ) + UiUtils.GetPaddedIconSize( FontAwesomeIcon.PaintBrush );
 
             using( var child = ImRaii.Child( "Child", new Vector2( size - popupSize, ImGui.GetFrameHeightWithSpacing() ) ) ) {
                 using var tabs = ImRaii.TabBar( "TabBar", ImGuiTabBarFlags.NoCloseWithMiddleMouseButton );
@@ -131,10 +131,25 @@ namespace VfxEditor.FileManager {
 
             ImGui.SameLine();
             var prePopoutPos = ImGui.GetCursorScreenPos();
-            using var font = ImRaii.PushFont( UiBuilder.IconFont );
-            using var transparentButtonStyle = ImRaii.PushColor( ImGuiCol.Button, new Vector4( 0 ) );
-            if( ImGui.Button( FontAwesomeIcon.ArrowUpRightFromSquare.ToIconString() ) ) DocumentWindow.Show();
-            drawlist.AddLine( new Vector2( prePopoutPos.X, preDropdownPos.Y ), new Vector2( prePopoutPos.X + popupSize, preDropdownPos.Y ), color, 1 );
+            using( var transparentButtonStyle = ImRaii.PushColor( ImGuiCol.Button, new Vector4( 0 ) ) )
+            using( var font = ImRaii.PushFont( UiBuilder.IconFont ) ) {
+                if( ImGui.Button( FontAwesomeIcon.ArrowUpRightFromSquare.ToIconString() ) ) DocumentWindow.Show();
+
+                using( var buttonColor = ImRaii.PushColor( ImGuiCol.Text, WindowColor, UseWindowColor )) {
+                    ImGui.SameLine();
+                    if( ImGui.Button( FontAwesomeIcon.PaintBrush.ToIconString() ) ) ImGui.OpenPopup( "WindowColorPicker" );
+                }
+
+                drawlist.AddLine( new Vector2( prePopoutPos.X, preDropdownPos.Y ), new Vector2( prePopoutPos.X + popupSize, preDropdownPos.Y ), color, 1 );
+            }
+
+            smallItemSpacing.Pop();
+
+            using var windowPopup = ImRaii.Popup( "WindowColorPicker" );
+            if( windowPopup ) {
+                ImGui.Checkbox( "Use Custom Window Color", ref UseWindowColor );
+                ImGui.ColorPicker4( "##Color", ref WindowColor, ImGuiColorEditFlags.NoSidePreview | ImGuiColorEditFlags.AlphaBar );
+            }
         }
 
         private void DrawTabsDropdown() {
@@ -154,16 +169,21 @@ namespace VfxEditor.FileManager {
             }
         }
 
-        public override void PreDraw() {
+        public override unsafe void PreDraw() {
             base.PreDraw();
-            if( !Configuration.UseCustomWindowColor ) return;
-            ImGui.PushStyleColor( ImGuiCol.TitleBg, Configuration.TitleBg );
-            ImGui.PushStyleColor( ImGuiCol.TitleBgActive, Configuration.TitleBgActive );
-            ImGui.PushStyleColor( ImGuiCol.TitleBgCollapsed, Configuration.TitleBgCollapsed );
+
+            ImGui.PushStyleColor( ImGuiCol.TitleBg, UseWindowColor ? WindowColor :
+                ( Configuration.UseCustomWindowColor ? Configuration.TitleBg : *ImGui.GetStyleColorVec4(ImGuiCol.TitleBg) ) );
+
+            ImGui.PushStyleColor( ImGuiCol.TitleBgActive, UseWindowColor ? WindowColor :
+                ( Configuration.UseCustomWindowColor ? Configuration.TitleBgActive : *ImGui.GetStyleColorVec4( ImGuiCol.TitleBgActive ) ) );
+
+            ImGui.PushStyleColor( ImGuiCol.TitleBgCollapsed, UseWindowColor ? WindowColor :
+                ( Configuration.UseCustomWindowColor ? Configuration.TitleBgCollapsed : *ImGui.GetStyleColorVec4( ImGuiCol.TitleBgCollapsed ) ) );
         }
 
         public override void PostDraw() {
-            if( !Configuration.UseCustomWindowColor ) return;
+            base.PostDraw();
             ImGui.PopStyleColor( 3 );
         }
     }
