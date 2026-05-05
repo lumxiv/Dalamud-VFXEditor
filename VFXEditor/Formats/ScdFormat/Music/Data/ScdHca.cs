@@ -3,12 +3,14 @@ using NAudio.Wave;
 using System.IO;
 using System.Numerics;
 using VfxEditor.Formats.ScdFormat.Utils;
+using VfxEditor.Utils;
 
 namespace VfxEditor.ScdFormat.Music.Data {
     public class ScdHca : ScdAudioData {
-        private byte[] StreamData;
+        private byte[] StreamData; // Decoded
+        private byte[] RawData; // What will be written, can be the same if there's no encryption
 
-        private byte[] Data;
+        // TODO: how is looping handled?
 
         // TODO: CRC right before the end of the header + data
         /*
@@ -18,39 +20,59 @@ namespace VfxEditor.ScdFormat.Music.Data {
                 (that's what that f8 2c is for)
          */
 
+        private readonly short HeaderSize;
+        private readonly int BlockSize;
+        private readonly bool PlainText;
+
         public ScdHca( BinaryReader reader, ScdAudioEntry entry ) : base( entry ) {
             reader.ReadInt16(); // TODO
-            var headerSize = reader.ReadInt16();
-            var blockSize = reader.ReadInt16();
+            HeaderSize = reader.ReadInt16();
+            BlockSize = reader.ReadInt16();
             reader.ReadBytes( 7 ); // TODO
-            var plainText = reader.ReadBoolean();
-            reader.ReadBytes( 10 );
+            PlainText = reader.ReadBoolean();
+            reader.ReadBytes( 10 ); // TODO
 
-            var ms = new MemoryStream();
-            using var writer = new BinaryWriter( ms );
+            using var streamMs = new MemoryStream();
+            using var streamWriter = new BinaryWriter( streamMs );
 
-            writer.Write( reader.ReadBytes( headerSize ) ); // HCA header
-            Data = reader.ReadBytes( entry.DataLength );
-            writer.Write( ScdUtils.XorDecodeFromTableHca( Data, blockSize, entry.DataLength, headerSize ) );
-            writer.BaseStream.Position = 0;
+            using var rawMs = new MemoryStream();
+            using var rawWriter = new BinaryWriter( rawMs );
 
-            StreamData = ms.ToArray();
+            var header = reader.ReadBytes( HeaderSize );
+            var data = reader.ReadBytes( entry.DataLength );
+
+            if( !PlainText ) {
+                streamWriter.Write( header );
+                streamWriter.Write( ScdUtils.XorDecodeFromTableHca( data, BlockSize, entry.DataLength, HeaderSize ) );
+                streamWriter.BaseStream.Position = 0;
+            }
+
+            rawWriter.Write( header );
+            rawWriter.Write( data );
+
+            RawData = rawMs.ToArray();
+            StreamData = PlainText ? RawData : streamMs.ToArray();
         }
 
         public override WaveStream GetStream() => new WaveFileReader( new HcaAudioStream( new MemoryStream( StreamData ), DecodeParams.Default ) );
 
         public override void Write( BinaryWriter writer ) {
-           // TODO
+            FileUtils.Pad( writer, 0x18 ); // TODO
+            writer.Write( RawData );
         }
 
-        public override int SamplesToBytes( int samples ) => 0;
+        public override int SamplesToBytes( int samples ) => 0; // TODO
 
-        public override int TimeToBytes( float time ) => 0;
+        public override int TimeToBytes( float time ) => 0; // TODO
 
-        public float BytesToTime( int bytes ) => 0f;
+        public float BytesToTime( int bytes ) => 0f; // TODO
 
-        public override Vector2 GetLoopTime() => new();
+        public override Vector2 GetLoopTime() => new(); // TODO
 
-        public override int GetSubInfoSize() => 0;
+        public override int GetSubInfoSize() => HeaderSize + 0x18;
+
+        // ====================
+
+        // TODO: importing
     }
 }

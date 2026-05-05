@@ -1,6 +1,5 @@
 using System.IO;
 using VfxEditor.Interop;
-using VfxEditor.ScdFormat;
 
 namespace VfxEditor.Formats.ScdFormat.Utils {
     public static class ScdUtils {
