@@ -92,7 +92,7 @@ namespace VfxEditor.ScdFormat.Music.Data {
                 writer.Write( DecodedData );
                 Data = ms.ToArray();
             }
-            if( EncodeMode == 0x2003 ) ScdUtils.XorDecodeFromTable( Data, DecodedData.Length );
+            if( EncodeMode == 0x2003 ) ScdUtils.XorDecodeFromTableVorbis( Data, DecodedData.Length );
         }
 
         private void PopulateSeekTable() {

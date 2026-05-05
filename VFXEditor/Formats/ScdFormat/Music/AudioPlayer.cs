@@ -106,12 +106,12 @@ namespace VfxEditor.ScdFormat {
                     else SaveWaveDialog();
                 }
             }
-            UiUtils.Tooltip( "Export sound file to .wav or .ogg" );
 
             using( var popup = ImRaii.Popup( "SavePopup" ) ) {
                 if( popup ) {
                     if( ImGui.Selectable( ".wav" ) ) SaveWaveDialog();
                     if( ImGui.Selectable( ".ogg" ) ) SaveOggDialog();
+                    // TODO: .hca. Note that you should probably only be able to export to .wav or the original format
                 }
             }
 
@@ -260,6 +260,8 @@ namespace VfxEditor.ScdFormat {
         // ======================
 
         private void ImportDialog() {
+            // TODO: import .wav or original format
+            // TODO: .hca
             FileBrowserManager.OpenFileDialog( "Import File", "Audio files{.ogg,.wav},.*", ( ok, res ) => {
                 if( ok ) {
                     Reset();

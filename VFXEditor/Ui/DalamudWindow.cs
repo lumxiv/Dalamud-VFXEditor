@@ -18,7 +18,7 @@ namespace VfxEditor.Ui {
             base( name, ( menuBar ? ImGuiWindowFlags.MenuBar : ImGuiWindowFlags.None ) | ImGuiWindowFlags.NoDocking ) {
 
             Size = size;
-            SizeCondition = ImGuiCond.Once;
+            SizeCondition = ImGuiCond.Appearing;
             windowSystem?.AddWindow( this );
             IsMainWindow = isMainWindow;
         }

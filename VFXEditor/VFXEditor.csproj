@@ -40,7 +40,7 @@
         <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
         <PackageReference Include="NAudio.Wasapi" Version="2.3.0" />
         <PackageReference Include="NAudio.WinMM" Version="2.3.0" />
-        <PackageReference Include="Penumbra.Api" Version="5.13.1" />
+        <PackageReference Include="Penumbra.Api" Version="5.15.1" />
         <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
         <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6" />
         <PackageReference Include="TeximpNet" Version="1.4.3" />
@@ -55,7 +55,24 @@
             <TargetPath>DirectXTexC.dll</TargetPath>
         </None>
         <Reference Include="OtterTex.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <HintPath>lib\OtterTex.dll</HintPath>
+        </Reference>
+        <Reference Include="DereTore.Common.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <HintPath>lib\DereTore.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="VGAudio.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <HintPath>lib\VGAudio.dll</HintPath>
+        </Reference>
+        <Reference Include="DereTore.Exchange.Audio.HCA.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <HintPath>lib\DereTore.Exchange.Audio.HCA.dll</HintPath>
+        </Reference>
+        <Reference Include="DereTore.Interop.OS.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <HintPath>lib\DereTore.Interop.OS.dll</HintPath>
         </Reference>
     </ItemGroup>
 
