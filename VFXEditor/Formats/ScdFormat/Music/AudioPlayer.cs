@@ -8,6 +8,7 @@ using System.Numerics;
 using VfxEditor.FileBrowser;
 using VfxEditor.ScdFormat.Music.Data;
 using VfxEditor.Utils;
+using System.Linq;
 
 namespace VfxEditor.ScdFormat {
     public class AudioPlayer {
@@ -24,6 +25,7 @@ namespace VfxEditor.ScdFormat {
         private double TotalTime => LeftStream?.TotalTime == null ? 0 : LeftStream.TotalTime.TotalSeconds - 0.01f;
         private double CurrentTime => LeftStream?.CurrentTime == null ? 0 : LeftStream.CurrentTime.TotalSeconds;
 
+        private bool IsWav => Entry.Format == SscfWaveFormat.MsAdPcm;
         private bool IsVorbis => Entry.Format == SscfWaveFormat.Vorbis;
         private bool LoopSound => ( IsVorbis && Plugin.Configuration.LoopMusic ) || ( !IsVorbis && Plugin.Configuration.LoopSoundEffects );
 
@@ -102,16 +104,15 @@ namespace VfxEditor.ScdFormat {
             ImGui.SameLine();
             using( var font = ImRaii.PushFont( UiBuilder.IconFont ) ) {
                 if( ImGui.Button( FontAwesomeIcon.Save.ToIconString() ) ) {
-                    if( IsVorbis ) ImGui.OpenPopup( "SavePopup" );
-                    else SaveWaveDialog();
+                    if( IsWav ) SaveWaveDialog(); // can only save as .wav
+                    else ImGui.OpenPopup( "SavePopup" );
                 }
             }
 
             using( var popup = ImRaii.Popup( "SavePopup" ) ) {
                 if( popup ) {
                     if( ImGui.Selectable( ".wav" ) ) SaveWaveDialog();
-                    if( ImGui.Selectable( ".ogg" ) ) SaveOggDialog();
-                    // TODO: .hca. Note that you should probably only be able to export to .wav or the original format
+                    if( ImGui.Selectable( $".{Entry.Data.GetDefaultExtension()}" ) ) SaveAsDefaultFormatDialog();
                 }
             }
 
@@ -260,9 +261,10 @@ namespace VfxEditor.ScdFormat {
         // ======================
 
         private void ImportDialog() {
-            // TODO: import .wav or original format
-            // TODO: .hca
-            FileBrowserManager.OpenFileDialog( "Import File", "Audio files{.ogg,.wav},.*", ( ok, res ) => {
+            var extensions = Entry.Data.GetImportActions().Keys.Select( x => "." + x ).ToList();
+            var filter = "{" + string.Join( ",", extensions ) + "}";
+
+            FileBrowserManager.OpenFileDialog( "Import File", $"Audio files{filter},.*", ( ok, res ) => {
                 if( ok ) {
                     Reset();
                     Entry.File.Import( res, Entry );
@@ -279,11 +281,10 @@ namespace VfxEditor.ScdFormat {
             } );
         }
 
-        private void SaveOggDialog() {
-            FileBrowserManager.SaveFileDialog( "Select a Save Location", ".ogg", "ExportedSound", "ogg", ( ok, res ) => {
+        private void SaveAsDefaultFormatDialog() {
+            FileBrowserManager.SaveFileDialog( "Select a Save Location", $".{Entry.Data.GetDefaultExtension()}", "ExportedSound", Entry.Data.GetDefaultExtension(), ( ok, res ) => {
                 if( ok ) {
-                    var data = ( ScdVorbis )Entry.Data;
-                    File.WriteAllBytes( res, data.Data );
+                    File.WriteAllBytes( res, Entry.Data.GetDefaultExtensionData() );
                 }
             } );
         }

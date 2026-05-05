@@ -1,6 +1,7 @@
 using DereTore.Exchange.Audio.HCA;
 using NAudio.Wave;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using VfxEditor.Formats.ScdFormat.Utils;
@@ -99,6 +100,16 @@ namespace VfxEditor.ScdFormat.Music.Data {
         public override Vector2 GetLoopTime() => new( BytesToTime( Entry.LoopStart ), BytesToTime( Entry.LoopEnd ) );
 
         public override int GetSubInfoSize() => HeaderSize + 0x18;
+
+        // TODO
+        public override Dictionary<string, GetAudioEntryDelegate> GetImportActions() => new() {
+            ["wav"] = ( string path, ScdAudioEntry entry ) => null,
+            ["hca"] = ( string path, ScdAudioEntry entry ) => null
+        };
+
+        public override string GetDefaultExtension() => "hca";
+
+        public override byte[] GetDefaultExtensionData() => StreamData;
 
         // ====================
 

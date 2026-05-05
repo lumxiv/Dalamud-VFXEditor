@@ -161,6 +161,15 @@ namespace VfxEditor.ScdFormat.Music.Data {
 
         public override int GetSubInfoSize() => 0x20 + ( SeekTable.Count * 4 ) + VorbisHeaderSize;
 
+        public override Dictionary<string, GetAudioEntryDelegate> GetImportActions() => new() {
+            ["wav"] = ImportWav,
+            ["ogg"] = ImportOgg
+        };
+
+        public override string GetDefaultExtension() => "ogg";
+
+        public override byte[] GetDefaultExtensionData() => Data;
+
         // =======================
 
         public static ScdAudioEntry ImportOgg( string path, ScdAudioEntry oldEntry ) {

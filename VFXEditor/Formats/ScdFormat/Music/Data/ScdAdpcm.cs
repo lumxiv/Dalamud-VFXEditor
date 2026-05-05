@@ -1,4 +1,5 @@
 using NAudio.Wave;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using VfxEditor.Formats.ScdFormat;
@@ -25,10 +26,7 @@ namespace VfxEditor.ScdFormat.Music.Data {
             Format = WaveFormat.FromFormatChunk( br, WaveHeader.Length );
         }
 
-        public override WaveStream GetStream() {
-            var ms = new MemoryStream( Data, 0, Data.Length, false );
-            return new RawSourceWaveStream( ms, Format );
-        }
+        public override WaveStream GetStream() => new RawSourceWaveStream( new MemoryStream( Data, 0, Data.Length, false ), Format );
 
         public override void Write( BinaryWriter writer ) {
             writer.Write( WaveHeader );
@@ -44,6 +42,15 @@ namespace VfxEditor.ScdFormat.Music.Data {
         public override Vector2 GetLoopTime() => new( BytesToTime( Entry.LoopStart ), BytesToTime( Entry.LoopEnd ) );
 
         public override int GetSubInfoSize() => WaveHeader.Length;
+
+        public override Dictionary<string, GetAudioEntryDelegate> GetImportActions() => new() {
+            ["wav"] = ImportWav,
+            ["ogg"] = ScdVorbis.ImportOgg
+        };
+
+        public override string GetDefaultExtension() => "wav";
+
+        public override byte[] GetDefaultExtensionData() => Data;
 
         // ===================
 

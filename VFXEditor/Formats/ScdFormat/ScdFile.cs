@@ -215,12 +215,8 @@ namespace VfxEditor.ScdFormat {
 
         public async void Import( string path, ScdAudioEntry entry ) {
             await Task.Run( () => {
-                var newEntry = entry.Data switch {
-                    ScdAdpcm _ => ( Path.GetExtension( path ) == ".wav" ) ? ScdAdpcm.ImportWav( path, entry ) : ScdVorbis.ImportOgg( path, entry ),
-                    ScdVorbis _ => ( Path.GetExtension( path ) == ".wav" ) ? ScdVorbis.ImportWav( path, entry ) : ScdVorbis.ImportOgg( path, entry ),
-                    _ => null
-                };
-
+                if( !entry.Data.GetImportActions().TryGetValue( $".{Path.GetExtension( path )}", out var importFunc ) ) return;
+                var newEntry = importFunc( path, entry );
                 if( newEntry != null ) Replace( entry, newEntry );
             } );
         }
