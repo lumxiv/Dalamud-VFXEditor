@@ -6,18 +6,15 @@ namespace VfxEditor.Formats.ScdFormat.Utils {
         public static string VorbisHeader => Path.Combine( Plugin.RootLocation, "Files", "vorbis_header.bin" );
 
         public static void ConvertWavToOgg( string wavPath ) {
-            Cleanup();
             InteropUtils.Run( "oggenc2.exe", $"-s 0  --resample 44100 -o \"{ScdManagerGroup.ConvertOgg}\" \"{wavPath}\"", false, out var _ );
         }
 
         public static void ConvertToAdpcm( string wavPath ) {
-            Cleanup();
             InteropUtils.Run( "adpcmencode3.exe", $"-b 256 \"{wavPath}\" \"{ScdManagerGroup.ConvertWav}\"", false, out var _ );
         }
 
-        public static void Cleanup() {
-            if( File.Exists( ScdManagerGroup.ConvertWav ) ) File.Delete( ScdManagerGroup.ConvertWav );
-            if( File.Exists( ScdManagerGroup.ConvertOgg ) ) File.Delete( ScdManagerGroup.ConvertOgg );
+        public static void ConvertToHca( string wavPath ) {
+            InteropUtils.Run( "VGAudioCli.exe", $"\"{wavPath}\" \"{ScdManagerGroup.ConvertHca}\"", false, out var _ );
         }
 
         public static void XorDecode( byte[] vorbisHeader, byte encodeByte ) {

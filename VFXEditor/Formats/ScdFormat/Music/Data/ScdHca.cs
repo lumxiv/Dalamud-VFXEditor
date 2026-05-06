@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using VfxEditor.Formats.ScdFormat;
 using VfxEditor.Formats.ScdFormat.Utils;
 using VfxEditor.Utils;
 
 namespace VfxEditor.ScdFormat.Music.Data {
     public class ScdHca : ScdAudioData {
         // TODO: how is looping handled?
-
         // TODO: CRC right before the end of the header + data
         /*
             if you crc the whole header
@@ -22,17 +22,25 @@ namespace VfxEditor.ScdFormat.Music.Data {
         private readonly byte[] StreamData; // Decoded
         private readonly byte[] RawData; // What will be written, can be the same if there's no encryption
 
-        private readonly short HeaderSize;
+        private readonly short HeaderSize = 0x60;
         private readonly int BlockSize;
-        private readonly bool PlainText;
+        private readonly bool PlainText = true;
 
         private readonly DecodeParams DecodeParams = DecodeParams.Default;
         private readonly HcaInfo HcaInfo;
         private uint SamplesPerBlock => HcaInfo.ChannelCount * 0x80 * 8;
 
-        private byte[] Unk1 = [ 0x20, 0x18 ];
-        private byte[] Unk2 = [ 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00 ];
-        private byte[] Unk3 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+        private readonly byte[] Unk1 = [ 0x20, 0x18 ];
+        private readonly byte[] Unk2 = [ 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00 ];
+        private readonly byte[] Unk3 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+
+        public ScdHca( byte[] data, HcaInfo info, ScdAudioEntry entry ) : base( entry ) {
+            StreamData = data;
+            RawData = data;
+            HcaInfo = info;
+            BlockSize = ( int )info.BlockSize;
+            Entry.DataLength = data.Length;
+        }
 
         public ScdHca( BinaryReader reader, ScdAudioEntry entry ) : base( entry ) {
             Unk1 = reader.ReadBytes(2); // TODO
@@ -101,10 +109,9 @@ namespace VfxEditor.ScdFormat.Music.Data {
 
         public override int GetSubInfoSize() => HeaderSize + 0x18;
 
-        // TODO
         public override Dictionary<string, GetAudioEntryDelegate> GetImportActions() => new() {
-            ["wav"] = ( string path, ScdAudioEntry entry ) => null,
-            ["hca"] = ( string path, ScdAudioEntry entry ) => null
+            ["wav"] = ImportWav,
+            ["hca"] = ImportHca
         };
 
         public override string GetDefaultExtension() => "hca";
@@ -113,6 +120,38 @@ namespace VfxEditor.ScdFormat.Music.Data {
 
         // ====================
 
-        // TODO: importing
+        public static ScdAudioEntry ImportWav( string path, ScdAudioEntry oldEntry ) {
+            using var waveReader = new WaveFileReader( path );
+
+            if( waveReader.WaveFormat.Encoding != WaveFormatEncoding.Pcm ) {
+                using var reader = new MediaFoundationReader( path );
+                WaveFileWriter.CreateWaveFile( ScdManagerGroup.ConvertWav, reader ); // converted to pcm
+            }
+            else {
+                File.Copy( path, ScdManagerGroup.ConvertWav ); // already good
+            }
+
+            ScdUtils.ConvertToHca( ScdManagerGroup.ConvertWav );
+            Dalamud.Log( $"Finished converting to HCA: {ScdManagerGroup.ConvertHca}" );
+            return ImportHca( ScdManagerGroup.ConvertHca, oldEntry );
+        }
+
+        public static ScdAudioEntry ImportHca( string path, ScdAudioEntry oldEntry ) {
+            var data = File.ReadAllBytes( path );
+            using var ms = new MemoryStream( data );
+            using var decoder = new HcaDecoder( ms );
+
+            // Create new entry
+            var entry = new ScdAudioEntry(
+                oldEntry,
+                0, // data length is a placeholder
+                (int) decoder.HcaInfo.ChannelCount,
+                (int) decoder.HcaInfo.SamplingRate,
+                SscfWaveFormat.HCA
+            );
+
+            entry.Data = new ScdHca( data, decoder.HcaInfo, entry );
+            return entry;
+        }
     }
 }

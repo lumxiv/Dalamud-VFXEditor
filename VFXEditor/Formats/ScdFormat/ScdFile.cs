@@ -215,7 +215,7 @@ namespace VfxEditor.ScdFormat {
 
         public async void Import( string path, ScdAudioEntry entry ) {
             await Task.Run( () => {
-                if( !entry.Data.GetImportActions().TryGetValue( $".{Path.GetExtension( path )}", out var importFunc ) ) return;
+                if( !entry.Data.GetImportActions().TryGetValue( Path.GetExtension( path ).Replace(".", ""), out var importFunc ) ) return;
                 var newEntry = importFunc( path, entry );
                 if( newEntry != null ) Replace( entry, newEntry );
             } );
