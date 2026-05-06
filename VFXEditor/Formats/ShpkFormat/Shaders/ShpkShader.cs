@@ -18,7 +18,7 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
 
         public readonly ShaderStage Stage;
         public readonly DX DxVersion;
-        public readonly bool IsV7;
+        public readonly bool IsLegacy;
         public string Extension => DxVersion == DX.DX11 ? "dxbc" : "cso";
         public readonly bool HasResources;
 
@@ -56,12 +56,12 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
         private bool BinLoaded = false;
         private string BinDump = "";
 
-        public ShpkShader( ShaderStage stage, DX dxVersion, bool hasResources, ShaderFileType type, bool isV7 ) {
+        public ShpkShader( ShaderStage stage, DX dxVersion, bool hasResources, ShaderFileType type, bool isLegacy ) {
             Stage = stage;
             HasResources = hasResources;
             DxVersion = dxVersion;
             Type = type;
-            IsV7 = isV7;
+            IsLegacy = isLegacy;
 
             ConstantView = new( "Constant", Constants, false, ( item, idx ) => item.GetText(), () => new( type ) );
             SamplerView = new( "Sampler", Samplers, false, ( item, idx ) => item.GetText(), () => new( type ) );
@@ -71,7 +71,7 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
             }
         }
 
-        public ShpkShader( BinaryReader reader, ShaderStage stage, DX dxVersion, bool hasResources, ShaderFileType type, bool isV7 ) : this( stage, dxVersion, hasResources, type, isV7 ) {
+        public ShpkShader( BinaryReader reader, ShaderStage stage, DX dxVersion, bool hasResources, ShaderFileType type, bool isLegacy ) : this( stage, dxVersion, hasResources, type, isLegacy ) {
             TempOffset = reader.ReadInt32();
             TempSize = reader.ReadInt32();
 
@@ -83,8 +83,10 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
                 numRw = reader.ReadInt16();
                 numTextures = reader.ReadInt16();
             }
+
+            // TODO
             unknown1.Read( reader );
-            if( unknown1.Value != 0 ) Dalamud.Error( $"Unknown parameters: 0x{unknown1.Value:X4}" );
+            if( unknown1.Value != 0 ) Dalamud.Error( $"Unknown parameters in SphkShader: 0x{unknown1.Value:X4}" );
 
             for( var i = 0; i < numConstants; i++ ) Constants.Add( new( reader, Type ) );
             for( var i = 0; i < numSamplers; i++ ) Samplers.Add( new( reader, Type ) );
@@ -162,7 +164,7 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
                 if( tab ) ResourceView.Draw();
             }
 
-            if( IsV7 ) {
+            if( !IsLegacy ) {
                 using var tab = ImRaii.TabItem( "Textures" );
                 if( tab ) TextureView.Draw();
             }
