@@ -20,7 +20,7 @@ namespace VfxEditor.Ui.Tools {
 
                 ImGui.SameLine();
                 if( ImGui.Button( "Extract" ) ) {
-                    var cleanedPath = ExtractPath.Replace( "\\", "/" );
+                    var cleanedPath = ExtractPath.Trim().Replace( "\\", "/" );
                     if( Dalamud.DataManager.FileExists( cleanedPath ) ) {
                         try {
                             var fileName = cleanedPath.Split( "/" )[^1];

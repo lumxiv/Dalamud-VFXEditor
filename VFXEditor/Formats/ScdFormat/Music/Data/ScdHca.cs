@@ -10,6 +10,9 @@ using VfxEditor.Utils;
 
 namespace VfxEditor.ScdFormat.Music.Data {
     public class ScdHca : ScdAudioData {
+        // Decoding based on Wintermute's implementation
+
+
         // TODO: how is looping handled?
         // TODO: CRC right before the end of the header + data
         /*

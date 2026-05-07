@@ -1,34 +1,51 @@
-using System;
+using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using VfxEditor.Parsing;
+using VfxEditor.Ui.Components.SplitViews;
 using VfxEditor.Ui.Interfaces;
+using VfxEditor.Utils;
 
 namespace VfxEditor.Formats.ShpkFormat.Nodes {
     public class ShpkNodeAliasSubCluster : IUiItem {
-        private const int DataCapacity = 97;
+        private const int DATA_CAPACITY = 97;
 
-        private ParsedShort OwnIndex = new( "Own Index" );
+        private readonly ParsedShort OwnIndex = new( "Index" );
+        private readonly List<ShpkAlias> Aliases = [];
+        private readonly CommandSplitView<ShpkAlias> AliasView;
+        private readonly List<uint> ExtraData = [];
 
-        private ushort AliasCount; // TODO
-        private byte[] Data;
+        public ShpkNodeAliasSubCluster() {
+            AliasView = new( "Alias", Aliases, false, null, () => new() );
+        }
 
-        public ShpkNodeAliasSubCluster( BinaryReader reader ) {
+        public ShpkNodeAliasSubCluster( BinaryReader reader ) : this() {
             OwnIndex.Read( reader );
-            AliasCount = reader.ReadUInt16();
-            Data = reader.ReadBytes( DataCapacity * 4 );
+            var aliasCount = reader.ReadUInt16();
+
+            for( var i = 0; i < aliasCount; i++ ) {
+                Aliases.Add( new( reader ) );
+            }
+            for( var i = ( aliasCount * 2 ); i < DATA_CAPACITY; i++ ) {
+                // TODO
+                ExtraData.Add( reader.ReadUInt32() );
+            }
         }
 
         public void Write( BinaryWriter writer ) {
             OwnIndex.Write( writer );
-            writer.Write( AliasCount );
-            writer.Write( Data );
+            writer.Write( (ushort) Aliases.Count );
+
+            Aliases.ForEach( x => x.Write( writer ) );
+            for( var i = 0; i < ExtraData.Count; i++ ) {
+                writer.Write( ExtraData[i] );
+            }
         }
 
         public void Draw() {
             OwnIndex.Draw();
-            // TODO
+            ImGui.Separator();
+            AliasView.Draw();
         }
     }
 }

@@ -17,6 +17,7 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
         public static string TempDxbc => Path.Combine( Plugin.Configuration.WriteLocation, "temp_dxbc.dxbc" ).Replace( '\\', '/' );
 
         public readonly ShaderStage Stage;
+        public readonly uint Version;
         public readonly DX DxVersion;
         public readonly bool IsLegacy;
         public string Extension => DxVersion == DX.DX11 ? "dxbc" : "cso";
@@ -56,7 +57,8 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
         private bool BinLoaded = false;
         private string BinDump = "";
 
-        public ShpkShader( ShaderStage stage, DX dxVersion, bool hasResources, ShaderFileType type, bool isLegacy ) {
+        public ShpkShader( ShaderStage stage, uint version, DX dxVersion, bool hasResources, ShaderFileType type, bool isLegacy ) {
+            Version = version;
             Stage = stage;
             HasResources = hasResources;
             DxVersion = dxVersion;
@@ -71,7 +73,7 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
             }
         }
 
-        public ShpkShader( BinaryReader reader, ShaderStage stage, DX dxVersion, bool hasResources, ShaderFileType type, bool isLegacy ) : this( stage, dxVersion, hasResources, type, isLegacy ) {
+        public ShpkShader( BinaryReader reader, ShaderStage stage, uint version, DX dxVersion, bool hasResources, ShaderFileType type, bool isLegacy ) : this( stage, version, dxVersion, hasResources, type, isLegacy ) {
             TempOffset = reader.ReadInt32();
             TempSize = reader.ReadInt32();
 
@@ -86,7 +88,6 @@ namespace VfxEditor.Formats.ShpkFormat.Shaders {
 
             // TODO
             unknown1.Read( reader );
-            if( unknown1.Value != 0 ) Dalamud.Error( $"Unknown parameters in SphkShader: 0x{unknown1.Value:X4}" );
 
             for( var i = 0; i < numConstants; i++ ) Constants.Add( new( reader, Type ) );
             for( var i = 0; i < numSamplers; i++ ) Samplers.Add( new( reader, Type ) );

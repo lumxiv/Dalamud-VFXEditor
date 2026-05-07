@@ -74,6 +74,7 @@ namespace VfxEditor.Formats.ShpkFormat {
 
         private readonly CommandDropdown<ShpkNode> NodeView;
         private readonly CommandSplitView<ShpkAlias> AliasView;
+        private readonly CommandDropdown<ShpkNodeAliasCluster> ClusterView;
 
         public ShpkFile( BinaryReader reader, bool verify ) : this( reader, null, verify ) { }
 
@@ -123,11 +124,11 @@ namespace VfxEditor.Formats.ShpkFormat {
 
             var nodeAliasClusterCount = Version >= NODE_ALIAS_CLUSTER_VERSION ? reader.ReadUInt32() : 0;
 
-            for( var i = 0; i < numVertex; i++ ) VertexShaders.Add( new( reader, ShaderStage.Vertex, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            for( var i = 0; i < numPixel; i++ ) PixelShaders.Add( new( reader, ShaderStage.Pixel, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            for( var i = 0; i < numHull; i++ ) HullShaders.Add( new( reader, ShaderStage.Hull, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            for( var i = 0; i < numDomain; i++ ) DomainShaders.Add( new( reader, ShaderStage.Domain, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            for( var i = 0; i < numGeo; i++ ) GeometryShaders.Add( new( reader, ShaderStage.Geometry, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            for( var i = 0; i < numVertex; i++ ) VertexShaders.Add( new( reader, ShaderStage.Vertex, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            for( var i = 0; i < numPixel; i++ ) PixelShaders.Add( new( reader, ShaderStage.Pixel, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            for( var i = 0; i < numHull; i++ ) HullShaders.Add( new( reader, ShaderStage.Hull, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            for( var i = 0; i < numDomain; i++ ) DomainShaders.Add( new( reader, ShaderStage.Domain, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            for( var i = 0; i < numGeo; i++ ) GeometryShaders.Add( new( reader, ShaderStage.Geometry, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
 
             for( var i = 0; i < numMaterialParams; i++ ) MaterialParameters.Add( new( this, reader ) );
 
@@ -170,11 +171,11 @@ namespace VfxEditor.Formats.ShpkFormat {
 
             // ====== CONSTRUCT VIEWS ==========
 
-            VertexView = new( "Vertex Shader", VertexShaders, null, () => new( ShaderStage.Vertex, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            PixelView = new( "Pixel Shader", PixelShaders, null, () => new( ShaderStage.Pixel, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            HullView = new( "Hull Shader", HullShaders, null, () => new( ShaderStage.Hull, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            DomainView = new( "Domain Shader", DomainShaders, null, () => new( ShaderStage.Domain, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
-            GeometryView = new( "Geometry Shader", GeometryShaders, null, () => new( ShaderStage.Geometry, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            VertexView = new( "Vertex Shader", VertexShaders, null, () => new( ShaderStage.Vertex, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            PixelView = new( "Pixel Shader", PixelShaders, null, () => new( ShaderStage.Pixel, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            HullView = new( "Hull Shader", HullShaders, null, () => new( ShaderStage.Hull, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            DomainView = new( "Domain Shader", DomainShaders, null, () => new( ShaderStage.Domain, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
+            GeometryView = new( "Geometry Shader", GeometryShaders, null, () => new( ShaderStage.Geometry, Version, DxVersion, true, ShaderFileType.Shpk, IsLegacy ) );
 
             MaterialParameterView = new( "Parameter", MaterialParameters, false, null, () => new( this ) );
 
@@ -190,7 +191,7 @@ namespace VfxEditor.Formats.ShpkFormat {
 
             NodeView = new( "Node", Nodes, null, () => new() );
             AliasView = new( "Alias", Aliases, false, null, () => new() );
-            // TODO
+            ClusterView = new( "Cluster", NodeAliasClusters, null, () => new() );
 
             // TODO: don't be dumb when adding keys, actually update selectors and stuff
             // TOOD: when adding keys, make sure to do it everywhere
@@ -347,6 +348,11 @@ namespace VfxEditor.Formats.ShpkFormat {
 
             using( var tab = ImRaii.TabItem( "Aliases" ) ) {
                 if( tab ) AliasView.Draw();
+            }
+
+            if( Version >= NODE_ALIAS_CLUSTER_VERSION ) {
+                using var tab = ImRaii.TabItem( "Clusters" );
+                if( tab ) ClusterView.Draw();
             }
         }
 

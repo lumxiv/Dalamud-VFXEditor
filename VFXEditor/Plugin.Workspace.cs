@@ -193,10 +193,10 @@ namespace VfxEditor {
 
             var offsets = new Dictionary<IFileManagerGroup, int>(); // Number of documents before import
             var meta = JObject.Parse( File.ReadAllText( metaPath ) );
-            foreach( var manager in Groups.Where( x => x != null ) ) {
-                if( reset ) manager.Reset( false );
-                offsets[manager] = manager.GetDocuments().Count();
-                manager.WorkspaceImport( meta, loadLocation );
+            foreach( var group in Groups.Where( x => x != null ) ) {
+                if( reset ) group.Reset( false );
+                offsets[group] = group.GetDocuments().Count();
+                group.WorkspaceImport( meta, loadLocation );
             }
 
             if( reset ) ExportDialog.Reset();
