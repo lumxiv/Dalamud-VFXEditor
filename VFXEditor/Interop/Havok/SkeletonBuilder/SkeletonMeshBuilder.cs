@@ -54,7 +54,7 @@ namespace VfxEditor.Interop.Havok.SkeletonBuilder {
 
             for( var i = 0; i < Bones.Count; i++ ) { PopulateSpheres( i ); }
 
-            Positions.AddRange( SphereBuilder.Positions );
+            Positions.AddRange( SphereBuilder.Positions.Select( Clean ) );
             Tris.AddRange( SphereBuilder.TriangleIndices.Select( x => x + Offset ) );
 
             // =================
@@ -81,15 +81,15 @@ namespace VfxEditor.Interop.Havok.SkeletonBuilder {
 
             var j = 0;
             for( ; j < SingleBone.Positions.Count - 6; j += 3 ) { // iterate over everything but last 2 faces
-                Positions.Add( Vector3Helper.TransformCoordinate( SingleBone.Positions[j] * scale, startMatrix ) );
-                Positions.Add( Vector3Helper.TransformCoordinate( SingleBone.Positions[j + 1] * scale, startMatrix ) );
+                Positions.Add( Clean( Vector3Helper.TransformCoordinate( SingleBone.Positions[j] * scale, startMatrix ) ) );
+                Positions.Add( Clean( Vector3Helper.TransformCoordinate( SingleBone.Positions[j + 1] * scale, startMatrix ) ) );
 
                 MatrixHelper.DecomposeUniformScale( endMatrix, out var _, out var _, out var translationVector );
 
-                Positions.Add( translationVector );
+                Positions.Add( Clean( translationVector ) );
             }
             for( ; j < SingleBone.Positions.Count; ++j ) {
-                Positions.Add( Vector3Helper.TransformCoordinate( SingleBone.Positions[j] * scale, startMatrix ) );
+                Positions.Add( Clean( Vector3Helper.TransformCoordinate( SingleBone.Positions[j] * scale, startMatrix ) ) );
             }
             Offset += SingleBone.Positions.Count;
         }
@@ -109,5 +109,11 @@ namespace VfxEditor.Interop.Havok.SkeletonBuilder {
         protected void PushColor( Color4 color, int n ) {
             for( var i = 0; i < n; i++ ) Colors.Add( color );
         }
+
+        protected static Vector3 Clean( Vector3 v ) => new() {
+            X = ( float.IsNaN( v.X ) || float.IsInfinity (v.X ) ) ? 0 : v.X,
+            Y = ( float.IsNaN( v.Y ) || float.IsInfinity( v.Y ) ) ? 0 : v.Y,
+            Z = ( float.IsNaN( v.Z ) || float.IsInfinity( v.Z ) ) ? 0 : v.Z,
+        };
     }
 }
