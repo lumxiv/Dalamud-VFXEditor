@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using VfxEditor.FileManager;
-using VfxEditor.FileManager.Interfaces;
 using VfxEditor.Formats.MtrlFormat.Stm;
 using VfxEditor.Formats.TextureFormat;
 using VfxEditor.Utils;
@@ -20,10 +19,9 @@ namespace VfxEditor.Formats.MtrlFormat {
         public readonly List<IDalamudTextureWrap> TileNormal = [];
         public readonly List<IDalamudTextureWrap> Sphere = [];
 
-        public readonly StmDataFile StmFileLegacy;
-        public readonly StmDataFile StmFile;
+        public readonly StmFileLegacy StmFileLegacy;
+        public readonly StmFile StmFile;
 
-        public readonly int[] Templates;
         public readonly List<MtrlStain> LegacyStains = [];
 
         public MtrlManagerGroup() : base( "Mtrl Editor", "Mtrl" ) {
@@ -50,16 +48,8 @@ namespace VfxEditor.Formats.MtrlFormat {
             }
 
             // Dye Templates
-            StmFileLegacy = Dalamud.DataManager.GetFile<StmDataFile>( "chara/base_material/stainingtemplate.stm" )!;
-            StmFile = Dalamud.DataManager.GetFile<StmDataFileDawntrail>( "chara/base_material/stainingtemplate_gud.stm" )!;
-            // https://github.com/TexTools/xivModdingFramework/blob/35d0ca49b5db25332756d2762e16c95b46a7f299/xivModdingFramework/Materials/FileTypes/STM.cs#L28
-            // ======== TODO: DT stain changes =======
-
-            var templates = new List<int> {
-                0
-            };
-            foreach( var entry in StmFileLegacy.Entries ) templates.Add( entry.Key );
-            Templates = [.. templates];
+            StmFileLegacy = Dalamud.DataManager.GetFile<StmFileLegacy>( "chara/base_material/stainingtemplate.stm" )!;
+            StmFile = Dalamud.DataManager.GetFile<StmFile>( "chara/base_material/stainingtemplate_gud.stm" )!;
 
             // Dyes
             foreach( var item in Dalamud.DataManager.GetExcelSheet<Stain>().Where( x => !string.IsNullOrEmpty( x.Name.ExtractText() ) ) ) {

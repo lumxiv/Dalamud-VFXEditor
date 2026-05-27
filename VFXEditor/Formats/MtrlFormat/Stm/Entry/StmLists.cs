@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace VfxEditor.Formats.MtrlFormat.Stm {
+namespace VfxEditor.Formats.MtrlFormat.Stm.Entry {
     [StructLayout( LayoutKind.Sequential )]
     public struct Triple {
         public Half R;
