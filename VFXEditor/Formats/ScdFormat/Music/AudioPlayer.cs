@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Numerics;
 using VfxEditor.FileBrowser;
-using VfxEditor.ScdFormat.Music.Data;
 using VfxEditor.Utils;
 using System.Linq;
 

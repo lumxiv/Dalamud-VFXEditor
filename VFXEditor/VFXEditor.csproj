@@ -36,9 +36,8 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="mgholam.fastCSV" Version="2.0.9" />
-        <PackageReference Include="NAudio.Core" Version="2.3.0" />
+        <PackageReference Include="NAudio" Version="2.3.0" />
         <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
-        <PackageReference Include="NAudio.Wasapi" Version="2.3.0" />
         <PackageReference Include="NAudio.WinMM" Version="2.3.0" />
         <PackageReference Include="Penumbra.Api" Version="5.15.1" />
         <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
