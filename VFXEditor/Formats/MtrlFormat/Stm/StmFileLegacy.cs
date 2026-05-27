@@ -9,8 +9,8 @@ namespace VfxEditor.Formats.MtrlFormat.Stm {
         public override StmDyeData GetDye( int template, int idx ) {
             if( !Entries.TryGetValue( ( ushort )template, out var entry ) ) return null;
             if( idx <= 0 || idx > StmEntry.MAX ) return null;
-
             idx--;
+
             var diffuse = entry.Diffuse[idx];
             var specular = entry.Specular[idx];
             var emissive = entry.Emissive[idx];

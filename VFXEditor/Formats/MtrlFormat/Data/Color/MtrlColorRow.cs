@@ -1,9 +1,10 @@
-using Dalamud.Interface.Utility.Raii;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Utility.Raii;
 using System.IO;
 using System.Numerics;
 using VfxEditor.Formats.MtrlFormat.Data.Dye;
 using VfxEditor.Formats.MtrlFormat.Data.Table;
+using VfxEditor.Formats.MtrlFormat.Stm;
 using VfxEditor.Parsing;
 using VfxEditor.Parsing.HalfFloat;
 
@@ -42,7 +43,7 @@ namespace VfxEditor.Formats.MtrlFormat.Data.Color {
 
         public readonly MtrlDyeRow DyeRow = new();
 
-        public MtrlColorRow( MtrlTableBase table ) : base( table ) { }
+        public MtrlColorRow( MtrlFile file, MtrlTableBase table ) : base( file, table ) { }
 
         public override void Read( BinaryReader reader ) {
             Diffuse.Read( reader );
@@ -154,6 +155,14 @@ namespace VfxEditor.Formats.MtrlFormat.Data.Color {
                     Unknown8.Draw();
                 }
             }
+        }
+
+        // ===== PREVIEW =========
+
+        public override StmDyeData GetStainTemplate() => Stain == null ? null : Plugin.MtrlManager.StmFile.GetDye( DyeRow.Template.Value, ( int )Stain.Id );
+
+        public override void UpdateRender() {
+            StainTemplate = GetStainTemplate();
         }
     }
 }

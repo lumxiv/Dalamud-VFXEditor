@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using VfxEditor.Parsing;
+using VfxEditor.Utils;
 
 namespace VfxEditor.Formats.MtrlFormat.Data.Dye {
     [Flags]
@@ -36,7 +37,7 @@ namespace VfxEditor.Formats.MtrlFormat.Data.Dye {
         }
 
         public void Draw() {
-            // TODO: template
+            if( UiUtils.EnumComboBox( "Template", Plugin.MtrlManager.StmFile.Templates, Template.Value, out var value ) ) Template.Update( value );
             Channel.Draw();
             Flags.Draw();
         }

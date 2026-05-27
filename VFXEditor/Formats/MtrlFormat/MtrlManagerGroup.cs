@@ -22,7 +22,7 @@ namespace VfxEditor.Formats.MtrlFormat {
         public readonly StmFileLegacy StmFileLegacy;
         public readonly StmFile StmFile;
 
-        public readonly List<MtrlStain> LegacyStains = [];
+        public readonly List<MtrlStain> Stains = [];
 
         public MtrlManagerGroup() : base( "Mtrl Editor", "Mtrl" ) {
             try {
@@ -54,7 +54,7 @@ namespace VfxEditor.Formats.MtrlFormat {
             // Dyes
             foreach( var item in Dalamud.DataManager.GetExcelSheet<Stain>().Where( x => !string.IsNullOrEmpty( x.Name.ExtractText() ) ) ) {
                 var bytes = BitConverter.GetBytes( item.Color );
-                LegacyStains.Add( new() {
+                Stains.Add( new() {
                     Name = item.Name.ToString(),
                     Id = item.RowId,
                     Color = new( bytes[2] / 255f, bytes[1] / 255f, bytes[0] / 255f )
