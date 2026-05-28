@@ -22,9 +22,6 @@ namespace VfxEditor.Formats.MtrlFormat.Data.Color {
 
         public readonly MtrlDyeRowLegacy DyeRow = new();
 
-        public MtrlStain Stain { get; private set; }
-        public StmDyeData StainTemplate { get; private set; }
-
         public MtrlColorRowLegacy( MtrlFile file, MtrlTableBase table ) : base( file, table ) { }
 
         public override void Read( BinaryReader reader ) {

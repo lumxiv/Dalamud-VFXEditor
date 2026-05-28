@@ -10,6 +10,8 @@ using VfxEditor.Parsing.HalfFloat;
 
 namespace VfxEditor.Formats.MtrlFormat.Data.Color {
     public class MtrlColorRow : MtrlColorRowBase {
+        // Maybe something like https://github.com/blender/blender/blob/main/source/blender/gpu/shaders/material/gpu_shader_material_principled.glsl ?
+
         public readonly ParsedHalf3Color Diffuse = new( "Diffuse", Vector3.One );
         public readonly ParsedHalf Unknown1 = new( "Unknown 1", 1f );
 

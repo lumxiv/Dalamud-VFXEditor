@@ -1,5 +1,7 @@
 using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
+using FFXIVClientStructs.FFXIV.Client.System.File;
+using FFXIVClientStructs.FFXIV.Client.System.Resource.Handle;
 using Penumbra.String.Classes;
 using System;
 using System.Collections.Generic;
@@ -56,16 +58,16 @@ namespace VfxEditor.Interop {
 
         // ====== LOAD TEX ==========
 
-        public delegate byte LoadTexFileLocalDelegate( TextureResourceHandle* handle, int unk1, SeFileDescriptor* unk2, bool unk33 );
+        public delegate byte LoadTexFileLocalDelegate( TextureResourceHandle* handle, int unk1, FileDescriptor* unk2, bool unk33 );
 
         public LoadTexFileLocalDelegate LoadTexFileLocal { get; private set; }
 
-        private delegate byte TexResourceHandleOnLoadPrototype( TextureResourceHandle* handle, SeFileDescriptor* descriptor, byte unk2 );
+        private delegate byte TexResourceHandleOnLoadPrototype( TextureResourceHandle* handle, FileDescriptor* descriptor, byte unk2 );
 
         [Signature( Constants.TexResourceHandleOnLoadSig, DetourName = nameof( TexOnLoadDetour ) )]
         private readonly Hook<TexResourceHandleOnLoadPrototype> TextureOnLoadHook = null!;
 
-        private byte TexOnLoadDetour( TextureResourceHandle* handle, SeFileDescriptor* descriptor, byte unk2 ) {
+        private byte TexOnLoadDetour( TextureResourceHandle* handle, FileDescriptor* descriptor, byte unk2 ) {
             var ret = TextureOnLoadHook.Original( handle, descriptor, unk2 );
             if( !TexReturnData.Value ) return ret;
 
@@ -91,15 +93,15 @@ namespace VfxEditor.Interop {
 
         // ======= LOAD SCD =============
 
-        private delegate byte SoundOnLoadDelegate( ResourceHandle* handle, SeFileDescriptor* descriptor, byte unk );
+        private delegate byte SoundOnLoadDelegate( ResourceHandle* handle, FileDescriptor* descriptor, byte unk );
 
         [Signature( Constants.LoadScdLocalSig )]
-        private readonly delegate* unmanaged< ResourceHandle*, SeFileDescriptor*, byte, byte > LoadScdFileLocal = null!;
+        private readonly delegate* unmanaged< ResourceHandle*, FileDescriptor*, byte, byte > LoadScdFileLocal = null!;
 
         [Signature( Constants.SoundOnLoadSig, DetourName = nameof( OnScdLoadDetour ) )]
         private readonly Hook<SoundOnLoadDelegate> SoundOnLoadHook = null!;
 
-        private byte OnScdLoadDetour( ResourceHandle* handle, SeFileDescriptor* descriptor, byte unk ) {
+        private byte OnScdLoadDetour( ResourceHandle* handle, FileDescriptor* descriptor, byte unk ) {
             var ret = SoundOnLoadHook.Original( handle, descriptor, unk );
             if( !ScdReturnData.Value ) return ret;
 

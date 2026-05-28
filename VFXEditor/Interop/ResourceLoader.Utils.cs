@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.Resource;
+using FFXIVClientStructs.FFXIV.Client.System.Resource.Handle;
 using Penumbra.String;
 using System;
 using System.Collections.Generic;
@@ -34,8 +35,6 @@ namespace VfxEditor.Interop {
 
         public delegate IntPtr GetFileManagerDelegate();
 
-        private readonly GetFileManagerDelegate GetFileManager;
-
         private readonly GetFileManagerDelegate GetFileManager2;
 
         [UnmanagedFunctionPointer( CallingConvention.ThisCall )]
@@ -44,7 +43,7 @@ namespace VfxEditor.Interop {
         private readonly DecRefDelegate DecRef;
 
         [UnmanagedFunctionPointer( CallingConvention.ThisCall )]
-        private delegate void* RequestFileDelegate( IntPtr a1, IntPtr a2, IntPtr a3, byte a4 );
+        private delegate void* RequestFileDelegate( IntPtr a1, IntPtr a2, ResourceHandle* a3, byte a4 );
 
         private readonly RequestFileDelegate RequestFile;
 
@@ -116,29 +115,29 @@ namespace VfxEditor.Interop {
             if( string.IsNullOrEmpty( gamePath ) ) return;
 
             var gameResource = GetResource( gamePath, true );
-            if( Plugin.Configuration?.LogDebug == true && DoDebug( gamePath ) ) Dalamud.Log( $"[ReloadPath] {gamePath} / {localPath} -> " + gameResource.ToString( "X8" ) );
+            if( Plugin.Configuration?.LogDebug == true && DoDebug( gamePath ) ) Dalamud.Log( $"[ReloadPath] {gamePath} / {localPath} -> " + ((nint)gameResource).ToString( "X8" ) );
 
-            if( gameResource != IntPtr.Zero ) {
+            if( gameResource != null ) {
                 InteropUtils.PrepPap( gameResource, papIds, papTypes );
-                RequestFile( GetFileManager2(), gameResource + Constants.GameResourceOffset, gameResource, 1 );
+                RequestFile( GetFileManager2(), (nint)gameResource + Constants.GameResourceOffset, gameResource, 1 );
                 InteropUtils.WritePapIds( gameResource, papIds, papTypes );
             }
 
             if( string.IsNullOrEmpty( localPath ) ) return;
 
             var localGameResource = GetResource( gamePath, false ); // get local path resource
-            if( Plugin.Configuration?.LogDebug == true && DoDebug( gamePath ) ) Dalamud.Log( $"[ReloadPath] {gamePath} / {localPath} -> " + localGameResource.ToString( "X8" ) );
+            if( Plugin.Configuration?.LogDebug == true && DoDebug( gamePath ) ) Dalamud.Log( $"[ReloadPath] {gamePath} / {localPath} -> " + ((nint)localGameResource).ToString( "X8" ) );
 
-            if( localGameResource != IntPtr.Zero ) {
+            if( localGameResource != null ) {
                 if( gamePath.EndsWith( ".pbd" ) ) ReplacePbd( ( ResourceHandle* )localGameResource );
 
                 InteropUtils.PrepPap( localGameResource, papIds, papTypes );
-                RequestFile( GetFileManager2(), localGameResource + Constants.GameResourceOffset, localGameResource, 1 );
+                RequestFile( GetFileManager2(), ( nint )localGameResource + Constants.GameResourceOffset, localGameResource, 1 );
                 InteropUtils.WritePapIds( localGameResource, papIds, papTypes );
             }
         }
 
-        private IntPtr GetResource( string path, bool original, bool decRef = true ) {
+        private ResourceHandle* GetResource( string path, bool original, bool decRef = true ) {
             var extension = FileUtils.Reverse( path.Split( '.' )[1] );
             var typeBytes = Encoding.ASCII.GetBytes( extension );
             var bType = stackalloc byte[typeBytes.Length + 1];
@@ -173,8 +172,8 @@ namespace VfxEditor.Interop {
             var pResourceHash = ( uint* )bHash;
 
             var resource = original ?
-                new IntPtr( GetResourceSyncHook.Original(
-                    ( ResourceManager* )GetFileManager(),
+                GetResourceSyncHook.Original(
+                    ResourceManager.Instance(),
                     (ResourceCategory* )pCategoryId,
                     ( uint* )pResourceType,
                     pResourceHash,
@@ -182,18 +181,18 @@ namespace VfxEditor.Interop {
                     null,
                     null,
                     0
-                ) ) :
-                new IntPtr( GetResourceSyncDetour(
-                    ( ResourceManager* )GetFileManager(),
-                    (ResourceCategory* )pCategoryId,
+                ) :
+                GetResourceSyncDetour(
+                    ResourceManager.Instance(),
+                    ( ResourceCategory* )pCategoryId,
                     ( uint* )pResourceType,
                     pResourceHash,
                     resolvedPath.Path,
                     null,
                     null,
                     0
-                ) );
-            if( decRef ) DecRef( resource );
+                );
+            if( decRef && resource->RefCount > 0 ) resource->DecRef();
 
             return resource;
         }

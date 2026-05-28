@@ -1,5 +1,7 @@
 using Dalamud;
+using FFXIVClientStructs.FFXIV.Client.System.Resource.Handle;
 using Penumbra.String;
+using Penumbra.String.Functions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +12,10 @@ using VfxEditor.Structs;
 
 namespace VfxEditor.Interop {
     public static unsafe class InteropUtils {
+        private const char Prefix = ( char )( ( byte )'P' | ( ( '?' & 0x00FF ) << 8 ) );
+
+        public const int Size = 28;
+
         public static void Run( string exePath, string arguments, bool captureOutput, out string output ) {
             output = "";
 
@@ -77,19 +83,52 @@ namespace VfxEditor.Interop {
             return ret;
         }
 
-        public static void PrepPap( IntPtr resource, List<string> ids, List<short> types ) {
+        public static void PrepPap( ResourceHandle* resource, List<string> ids, List<short> types ) {
             if( ids == null || types == null ) return;
-            Marshal.WriteByte( resource + Constants.PrepPapOffset, Constants.PrepPapValue );
+            Marshal.WriteByte( (nint)resource + Constants.PrepPapOffset, Constants.PrepPapValue );
         }
 
-        public static void WritePapIds( IntPtr resource, List<string> ids, List<short> types ) {
+        public static void WritePapIds( ResourceHandle* resource, List<string> ids, List<short> types ) {
             if( ids == null ) return;
-            var data = Marshal.ReadIntPtr( resource + Constants.PapIdsOffset );
+            var data = Marshal.ReadIntPtr( (nint)resource + Constants.PapIdsOffset );
             for( var i = 0; i < ids.Count; i++ ) {
                 SafeMemory.WriteString( data + ( i * 40 ), ids[i], Encoding.ASCII );
                 Marshal.WriteInt16( data + ( i * 40 ) + 32, types[i] );
                 Marshal.WriteByte( data + ( i * 40 ) + 34, ( byte )i );
             }
+        }
+
+        public static void WritePtr( char* buffer, byte* address, int length ) {
+            // Set the prefix, which is not valid for any actual path.
+            buffer[0] = Prefix;
+
+            var ptr = ( byte* )buffer;
+            var v = ( ulong )address;
+            var l = ( uint )length;
+
+            // Since the game calls wstrcpy without a length, we need to ensure
+            // that there is no wchar_t (i.e. 2 bytes) of 0-values before the end.
+            // Fill everything with 0xFF and use every second byte.
+            MemoryUtility.MemSet( ptr + 2, 0xFF, 23 );
+
+            // Write the byte pointer.
+            ptr[2] = ( byte )( v >> 0 );
+            ptr[4] = ( byte )( v >> 8 );
+            ptr[6] = ( byte )( v >> 16 );
+            ptr[8] = ( byte )( v >> 24 );
+            ptr[10] = ( byte )( v >> 32 );
+            ptr[12] = ( byte )( v >> 40 );
+            ptr[14] = ( byte )( v >> 48 );
+            ptr[16] = ( byte )( v >> 56 );
+
+            // Write the length.
+            ptr[18] = ( byte )( l >> 0 );
+            ptr[20] = ( byte )( l >> 8 );
+            ptr[22] = ( byte )( l >> 16 );
+            ptr[24] = ( byte )( l >> 24 );
+
+            ptr[Size - 2] = 0;
+            ptr[Size - 1] = 0;
         }
     }
 }

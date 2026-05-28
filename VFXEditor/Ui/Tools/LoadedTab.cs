@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using VfxEditor.Structs;
+using FFXIVClientStructs.FFXIV.Client.System.Resource.Handle;
+using CommunityToolkit.Common;
+using Dalamud.Utility;
 
 namespace VfxEditor.Ui.Tools {
     public unsafe class LoadedTab {
@@ -135,9 +138,9 @@ namespace VfxEditor.Ui.Tools {
             if( resourcePtr <= 256 || resourcePtr == 0x3F800000 ) return false;
 
             var resource = ( ResourceHandle* )resourcePtr;
-            if( resource->FileName().IsEmpty ) return false;
+            if( resource->FileName.ToString().IsNullOrEmpty() ) return false;
 
-            fileName = resource->FileName().ToString();
+            fileName = resource->FileName.ToString();
             if( string.IsNullOrEmpty( fileName ) ) return false;
 
             return true;
