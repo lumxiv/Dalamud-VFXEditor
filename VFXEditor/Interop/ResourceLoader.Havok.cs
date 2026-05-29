@@ -1,3 +1,4 @@
+using Dalamud.Utility.Signatures;
 using System;
 using VfxEditor.Interop.Havok.Structs;
 
@@ -11,6 +12,7 @@ namespace VfxEditor.Interop {
             HkaSplineCompressedAnimation* spline,
             HkaInterleavedUncompressedAnimation* interleaved );
 
-        public HavokSplineCtorDelegate HavokSplineCtor { get; private set; }
+        [Signature( Constants.HavokSplineCtorSig )]
+        public readonly HavokSplineCtorDelegate HavokSplineCtor = null;
     }
 }

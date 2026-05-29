@@ -1,4 +1,5 @@
 using Dalamud.Hooking;
+using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Sound;
 using InteropGenerator.Runtime;
 using System;
@@ -14,7 +15,8 @@ namespace VfxEditor.Interop {
 
         public delegate IntPtr PlaySoundDelegate( IntPtr path, byte play );
 
-        private readonly PlaySoundDelegate PlaySoundPath;
+        [Signature( Constants.PlaySoundSig )]
+        public readonly PlaySoundDelegate PlaySoundPath = null;
 
         public void PlaySound( string path, int idx ) {
             if( string.IsNullOrEmpty( path ) || idx < 0 || !Plugin.ScdManager.FileExists( path ) ) return;
@@ -39,7 +41,8 @@ namespace VfxEditor.Interop {
 
         public delegate SoundData* InitSoundPrototype( SoundManager* manager, CStringPointer path, float volume, uint soundIdx, uint unk1, bool unk2, SoundVolumeCategory category );
 
-        public Hook<InitSoundPrototype> InitSoundHook { get; private set; }
+        [Signature( Constants.InitSoundSig, DetourName = nameof( InitSoundDetour ) )]
+        public readonly Hook<InitSoundPrototype> InitSoundHook = null;
 
         private SoundData* InitSoundDetour( SoundManager* manager, CStringPointer path, float volume, uint soundIdx, uint unk1, bool unk2, SoundVolumeCategory category ) {
             if( path.HasValue && (nint)path.Value == OverridenSound ) {

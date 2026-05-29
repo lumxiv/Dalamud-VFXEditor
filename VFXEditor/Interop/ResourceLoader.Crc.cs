@@ -38,7 +38,8 @@ namespace VfxEditor.Interop {
 
         public delegate IntPtr CheckFileStatePrototype( IntPtr unk1, ulong crc64 );
 
-        public Hook<CheckFileStatePrototype> CheckFileStateHook { get; private set; }
+        [Signature( Constants.CheckFileStateSig, DetourName = nameof( CheckFileStateDetour ) )]
+        public readonly Hook<CheckFileStatePrototype> CheckFileStateHook = null;
 
         private nint CheckFileStateDetour( nint ptr, ulong crc64 ) {
             if( CustomMdlCrc.Contains( crc64 ) ) return CustomFileFlag;
@@ -60,12 +61,13 @@ namespace VfxEditor.Interop {
 
         public delegate byte LoadTexFileLocalDelegate( TextureResourceHandle* handle, int unk1, FileDescriptor* unk2, bool unk33 );
 
-        public LoadTexFileLocalDelegate LoadTexFileLocal { get; private set; }
+        [Signature( Constants.LoadTexFileLocalSig )]
+        public readonly LoadTexFileLocalDelegate LoadTexFileLocal = null;
 
-        private delegate byte TexResourceHandleOnLoadPrototype( TextureResourceHandle* handle, FileDescriptor* descriptor, byte unk2 );
+        public delegate byte TexResourceHandleOnLoadPrototype( TextureResourceHandle* handle, FileDescriptor* descriptor, byte unk2 );
 
         [Signature( Constants.TexResourceHandleOnLoadSig, DetourName = nameof( TexOnLoadDetour ) )]
-        private readonly Hook<TexResourceHandleOnLoadPrototype> TextureOnLoadHook = null!;
+        public readonly Hook<TexResourceHandleOnLoadPrototype> TextureOnLoadHook = null!;
 
         private byte TexOnLoadDetour( TextureResourceHandle* handle, FileDescriptor* descriptor, byte unk2 ) {
             var ret = TextureOnLoadHook.Original( handle, descriptor, unk2 );
@@ -80,11 +82,13 @@ namespace VfxEditor.Interop {
 
         public delegate byte LoadMdlFileLocalDelegate( ResourceHandle* handle, IntPtr unk1, bool unk2 );
 
-        public LoadMdlFileLocalDelegate LoadMdlFileLocal { get; private set; }
+        [Signature( Constants.LoadMdlFileLocalSig )]
+        public readonly LoadMdlFileLocalDelegate LoadMdlFileLocal = null;
 
         public delegate byte LoadMdlFileExternDelegate( ResourceHandle* handle, IntPtr unk1, bool unk2, IntPtr unk3 );
 
-        public Hook<LoadMdlFileExternDelegate> LoadMdlFileExternHook { get; private set; }
+        [Signature( Constants.LoadMdlFileExternSig, DetourName = nameof( LoadMdlFileExternDetour ) )]
+        public readonly Hook<LoadMdlFileExternDelegate> LoadMdlFileExternHook = null;
 
         private byte LoadMdlFileExternDetour( ResourceHandle* resourceHandle, IntPtr unk1, bool unk2, IntPtr ptr )
         => ptr.Equals( CustomFileFlag )
@@ -93,13 +97,13 @@ namespace VfxEditor.Interop {
 
         // ======= LOAD SCD =============
 
-        private delegate byte SoundOnLoadDelegate( ResourceHandle* handle, FileDescriptor* descriptor, byte unk );
+        public delegate byte SoundOnLoadDelegate( ResourceHandle* handle, FileDescriptor* descriptor, byte unk );
 
         [Signature( Constants.LoadScdLocalSig )]
-        private readonly delegate* unmanaged< ResourceHandle*, FileDescriptor*, byte, byte > LoadScdFileLocal = null!;
+        public readonly delegate* unmanaged<ResourceHandle*, FileDescriptor*, byte, byte> LoadScdFileLocal = null!;
 
         [Signature( Constants.SoundOnLoadSig, DetourName = nameof( OnScdLoadDetour ) )]
-        private readonly Hook<SoundOnLoadDelegate> SoundOnLoadHook = null!;
+        public readonly Hook<SoundOnLoadDelegate> SoundOnLoadHook = null!;
 
         private byte OnScdLoadDetour( ResourceHandle* handle, FileDescriptor* descriptor, byte unk ) {
             var ret = SoundOnLoadHook.Original( handle, descriptor, unk );

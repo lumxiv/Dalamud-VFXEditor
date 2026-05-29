@@ -1,4 +1,5 @@
 using Dalamud.Hooking;
+using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 using InteropGenerator.Runtime;
 using System;
@@ -11,35 +12,41 @@ namespace VfxEditor.Interop {
 
         public delegate IntPtr StaticVfxRunDelegate( VfxObject* vfx, float a1, uint a2 );
 
-        public StaticVfxRunDelegate StaticVfxRun;
+        [Signature( Constants.StaticVfxRunSig )]
+        public readonly StaticVfxRunDelegate StaticVfxRun = null;
 
         public delegate IntPtr StaticVfxRemoveDelegate( VfxObject* vfx );
 
-        public StaticVfxRemoveDelegate StaticVfxRemove;
+        [Signature( Constants.StaticVfxRemoveSig )]
+        public readonly StaticVfxRemoveDelegate StaticVfxRemove = null;
 
         // ======= STATIC HOOKS ========
         public Hook<VfxObject.Delegates.Create> StaticVfxCreateHook { get; private set; }
 
-        public Hook<StaticVfxRemoveDelegate> StaticVfxRemoveHook { get; private set; }
+        [Signature( Constants.StaticVfxRemoveSig, DetourName = nameof( StaticVfxRemoveDetour ) )]
+        public readonly Hook<StaticVfxRemoveDelegate> StaticVfxRemoveHook = null;
 
         // ======== ACTOR =============
         public delegate VfxObject* ActorVfxCreateDelegate( string path, IntPtr a2, IntPtr a3, float a4, char a5, ushort a6, char a7 );
 
-        public ActorVfxCreateDelegate ActorVfxCreate;
+        [Signature( Constants.ActorVfxCreateSig )]
+        public readonly ActorVfxCreateDelegate ActorVfxCreate = null;
 
         public delegate IntPtr ActorVfxRemoveDelegate( VfxObject* vfx, char a2 );
 
         public ActorVfxRemoveDelegate ActorVfxRemove;
 
         // ======== ACTOR HOOKS =============
-        public Hook<ActorVfxCreateDelegate> ActorVfxCreateHook { get; private set; }
+        [Signature( Constants.ActorVfxCreateSig, DetourName = nameof( ActorVfxNewDetour ) )]
+        public readonly Hook<ActorVfxCreateDelegate> ActorVfxCreateHook = null;
 
         public Hook<ActorVfxRemoveDelegate> ActorVfxRemoveHook { get; private set; }
 
         // ======= TRIGGERS =============
         public delegate IntPtr VfxUseTriggerDelete( VfxObject* vfx, uint triggerId );
 
-        public Hook<VfxUseTriggerDelete> VfxUseTriggerHook { get; private set; }
+        [Signature( Constants.CallTriggerSig, DetourName = nameof( VfxUseTriggerDetour ) )]
+        public readonly Hook<VfxUseTriggerDelete> VfxUseTriggerHook = null;
 
         // ==============================
 

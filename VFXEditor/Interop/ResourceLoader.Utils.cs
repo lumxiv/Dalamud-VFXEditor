@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.Resource;
 using FFXIVClientStructs.FFXIV.Client.System.Resource.Handle;
@@ -31,21 +32,19 @@ namespace VfxEditor.Interop {
 
         public delegate IntPtr GetMatrixSingletonDelegate();
 
-        public GetMatrixSingletonDelegate GetMatrixSingleton { get; private set; }
+        [Signature( Constants.GetMatrixSig )]
+        public readonly GetMatrixSingletonDelegate GetMatrixSingleton = null;
 
         public delegate IntPtr GetFileManagerDelegate();
 
-        private readonly GetFileManagerDelegate GetFileManager2;
+        [Signature( Constants.GetFileManagerSig )]
+        public readonly GetFileManagerDelegate GetFileManager = null;
 
         [UnmanagedFunctionPointer( CallingConvention.ThisCall )]
-        public delegate byte DecRefDelegate( IntPtr resource );
+        public delegate void* RequestFileDelegate( IntPtr a1, IntPtr a2, ResourceHandle* a3, byte a4 );
 
-        private readonly DecRefDelegate DecRef;
-
-        [UnmanagedFunctionPointer( CallingConvention.ThisCall )]
-        private delegate void* RequestFileDelegate( IntPtr a1, IntPtr a2, ResourceHandle* a3, byte a4 );
-
-        private readonly RequestFileDelegate RequestFile;
+        [Signature( Constants.RequestFileSig )]
+        public readonly RequestFileDelegate RequestFile = null;
 
         public void ReRender() {
             if( CurrentRedrawState != RedrawState.None || Plugin.PlayerObject == null || Dalamud.Condition[ConditionFlag.Fishing] ) return;
@@ -119,7 +118,7 @@ namespace VfxEditor.Interop {
 
             if( gameResource != null ) {
                 InteropUtils.PrepPap( gameResource, papIds, papTypes );
-                RequestFile( GetFileManager2(), (nint)gameResource + Constants.GameResourceOffset, gameResource, 1 );
+                RequestFile( GetFileManager(), (nint)gameResource + Constants.GameResourceOffset, gameResource, 1 );
                 InteropUtils.WritePapIds( gameResource, papIds, papTypes );
             }
 
@@ -132,7 +131,7 @@ namespace VfxEditor.Interop {
                 if( gamePath.EndsWith( ".pbd" ) ) ReplacePbd( ( ResourceHandle* )localGameResource );
 
                 InteropUtils.PrepPap( localGameResource, papIds, papTypes );
-                RequestFile( GetFileManager2(), ( nint )localGameResource + Constants.GameResourceOffset, localGameResource, 1 );
+                RequestFile( GetFileManager(), ( nint )localGameResource + Constants.GameResourceOffset, localGameResource, 1 );
                 InteropUtils.WritePapIds( localGameResource, papIds, papTypes );
             }
         }
