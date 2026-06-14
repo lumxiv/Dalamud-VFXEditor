@@ -1,11 +1,11 @@
 {
     "Author": "ocealot",
-    "Name": "VFXEditor",
+    "Name": "VFXEditor-7.5Fix",
     "Punchline": "VFX editor and viewer",
     "Description": "VFX, animation, and sound editing plugin. Icon by PAPACHIN",
-    "InternalName": "VFXEditor",
-    "AssemblyVersion": "1.9.4.0",
-    "RepoUrl": "https://github.com/0ceal0t/Dalamud-VFXEditor",
+    "InternalName": "VFXEditor-7.5Fix",
+    "AssemblyVersion": "1.9.4.1",
+    "RepoUrl": "https://github.com/taco1932/VFXForkitor",
     "ApplicableVersion": "any",
     "Tags": [ "VFX", "AVFX" ],
     "LoadPriority": 69
