@@ -54,8 +54,7 @@ namespace VfxEditor.Select.Tabs.Npc {
                 if( !loadedmodels.Contains( currentmodel )) { loadedmodels.Add( currentmodel );}
                 Items.Add( new NpcRow( bnpcRow.ModelChara.Value, name ) );
             }
-            foreach (var modelcharaRow in ModelCharaSheet)
-            {
+            foreach (var modelcharaRow in ModelCharaSheet) {
                 string prefix = "m";
                 if( modelcharaRow.Type == 2 ) { prefix = "d"; }
                 string currentmodel = prefix + modelcharaRow.Model.ToString().PadLeft( 4, '0' );
