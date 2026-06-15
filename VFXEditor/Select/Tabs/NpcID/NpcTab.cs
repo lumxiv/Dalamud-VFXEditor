@@ -35,18 +35,14 @@ namespace VfxEditor.Select.Tabs.NpcID {
         // ===== LOADING =====
 
         public override void LoadData() {
-
             NpcFiles = JsonConvert.DeserializeObject<Dictionary<string, NpcFilesStruct>>( File.ReadAllText( SelectDataUtils.NpcFilesPath ) );
 
-            foreach( var item in NpcFiles.OrderBy( r => r.Key ) )
-            {
+            foreach( var item in NpcFiles.OrderBy( r => r.Key ) ){
                 Items.Add( new NpcRow( item.Key ) );
             }
         }
 
-        public override void LoadSelection( NpcRow item, out List<string> loaded )
-        {
-            Dalamud.Log( $"Loading Model {item.ModelString}" );
+        public override void LoadSelection( NpcRow item, out List<string> loaded ) {
             var files = NpcFiles.TryGetValue( item.ModelString, out var paths ) ? paths : new NpcFilesStruct();
             GetLoadedFiles( files, out loaded );
         }

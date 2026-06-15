@@ -66,9 +66,7 @@ namespace VfxEditor.Select.Tabs.Npc {
             NpcFiles = JsonConvert.DeserializeObject<Dictionary<string, NpcFilesStruct>>( File.ReadAllText( SelectDataUtils.NpcFilesPath ) );
         }
 
-        public override void LoadSelection( NpcRow item, out List<string> loaded )
-        {
-            Dalamud.Log( $"Loading Model {item.ModelString}" );
+        public override void LoadSelection( NpcRow item, out List<string> loaded ) {
             var files = NpcFiles.TryGetValue( item.ModelString, out var paths ) ? paths : new NpcFilesStruct();
             GetLoadedFiles( files, out loaded );
         }
