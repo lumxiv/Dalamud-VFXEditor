@@ -24,8 +24,13 @@ namespace VfxEditor.FileManager {
         public SelectDialog SourceSelect { get; protected set; }
         public SelectDialog ReplaceSelect { get; protected set; }
 
+        // The id (everything after "###") must match what FileManager.DrawBody() later assigns to
+        // WindowName ($"...###{Title}-{WindowId}"), otherwise this window is born under one ImGui
+        // id and permanently switches to a different one the first time it draws - two entirely
+        // separate windows as far as ImGui/its ini persistence are concerned, so anything applied
+        // to the constructor's id (including SetMeta()'s restored size/position) gets abandoned.
         protected FileManagerBase( FileManagerGroupBase group ) :
-            base( $"{group.Title}##{group.WindowId}", true, new( 800, 1000 ), group.WindowSystem, isMainWindow: true ) {
+            base( $"{group.Title}###{group.Title}-{group.WindowId}", true, new( 800, 1000 ), group.WindowSystem, isMainWindow: true ) {
 
             Group = group;
             WindowId = group.NewWindowId;

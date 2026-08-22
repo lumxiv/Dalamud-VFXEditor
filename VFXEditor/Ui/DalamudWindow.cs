@@ -14,6 +14,9 @@ namespace VfxEditor.Ui {
         private Vector2? LastPosition;
         private Vector2? LastSize;
 
+        // Used so we can override the frames, since ImGuiCond.Once can only be fired 1 time per session
+        private int OverrideFrames = 0;
+
         public DalamudWindow( string name, bool menuBar, Vector2 size, WindowSystem windowSystem, bool isMainWindow = false ) :
             base( name, ( menuBar ? ImGuiWindowFlags.MenuBar : ImGuiWindowFlags.None ) | ImGuiWindowFlags.NoDocking ) {
 
@@ -57,6 +60,11 @@ namespace VfxEditor.Ui {
                 else
                     Flags &= ~( ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove );
             }
+
+            if( OverrideFrames > 0 && --OverrideFrames == 0 ) {
+                Size = null;
+                Position = null;
+            }
         }
 
         public virtual WorkspaceWindow ToMeta() => new() {
@@ -66,12 +74,14 @@ namespace VfxEditor.Ui {
 
         public virtual void SetMeta( WorkspaceWindow? meta ) {
             if( meta?.Size != null ) {
-                SizeCondition = ImGuiCond.Once;
                 Size = meta?.Size;
+                SizeCondition = ImGuiCond.Always;
+                OverrideFrames = 2;
             }
             if( meta?.Position != null ) {
-                PositionCondition = ImGuiCond.Once;
                 Position = meta?.Position;
+                PositionCondition = ImGuiCond.Always;
+                OverrideFrames = 2;
             }
         }
     }
